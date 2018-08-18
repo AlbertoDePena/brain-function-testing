@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "bft-authentication-api", "src\bft-authentication-api\bft-authentication-api.fsproj", "{829892D3-3B3E-4D1F-BA51-DCE3F8D75F81}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{829892D3-3B3E-4D1F-BA51-DCE3F8D75F81}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{829892D3-3B3E-4D1F-BA51-DCE3F8D75F81}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{829892D3-3B3E-4D1F-BA51-DCE3F8D75F81}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{829892D3-3B3E-4D1F-BA51-DCE3F8D75F81}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4EBA6516-5E1D-4390-B4F2-ECD6066B9B80}
+	EndGlobalSection
+EndGlobal
