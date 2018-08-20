@@ -27,16 +27,6 @@ let errorHandler (ex : Exception) (logger : ILogger) =
 let handleTokenRequest : HttpHandler =
     fun (next : HttpFunc) (ctx : HttpContext) ->
         task {
-            let validatePassword  (dto : Dto.TokenRequest) =
-                if String.IsNullOrEmpty dto.Password then
-                    Result.Error "Password is required"
-                else Result.Ok dto
-
-            let validateEmail  (dto : Dto.TokenRequest) =
-                if String.IsNullOrEmpty dto.Email then
-                    Result.Error "Email is required"
-                else Result.Ok dto
-
             let! dto = ctx.BindJsonAsync<Dto.TokenRequest>()
 
             return! Successful.OK dto next ctx
