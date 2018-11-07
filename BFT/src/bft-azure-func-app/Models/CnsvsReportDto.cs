@@ -82,10 +82,17 @@ namespace BFT.AzureFuncApp.Models
         public string Duration { get; set; }
 
         /// <summary>
-        /// domain_data - XML string of domain data
+        /// Language assessment was presented in
         /// </summary>
         /// <value></value>
-        [JsonProperty("domain_data")]
-        public string DomainData { get; set; }
+        [JsonProperty("language")]
+        public string Language { get; set; }
+
+        /// <summary>
+        /// report_data - XML string of domain data
+        /// </summary>
+        /// <value></value>
+        [JsonProperty("report_data")]
+        public string ReportData { get; set; }
     }
 }

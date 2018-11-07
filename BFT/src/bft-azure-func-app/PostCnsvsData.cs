@@ -40,7 +40,8 @@ namespace BFT.AzureFuncApp
                     BirthDate = formData["birth_date"],
                     Gender = formData["gender"],
                     Duration = formData["duration"],
-                    DomainData = formData["domain_data"]
+                    Language = formData["language"],
+                    ReportData = formData["report_data"]
                 };
 
                 log.LogInformation($"cnsvs_id: {dto.CnsvsId}");
@@ -54,7 +55,8 @@ namespace BFT.AzureFuncApp
                 log.LogInformation($"birth_date: {dto.BirthDate}");
                 log.LogInformation($"gender: {dto.Gender}");
                 log.LogInformation($"duration: {dto.Duration}");
-                log.LogInformation($"domain_data: {dto.DomainData}");
+                log.LogInformation($"language: {dto.Language}");
+                log.LogInformation($"report_data: {dto.ReportData}");
 
                 using (var service =
                     new DatabaseService(

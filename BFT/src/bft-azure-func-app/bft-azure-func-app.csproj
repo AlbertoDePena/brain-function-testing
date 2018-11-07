@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <AzureFunctionsVersion>v2</AzureFunctionsVersion>
     <AssemblyName>BFT.AzureFuncApp</AssemblyName>
-    <Version>0.1.0</Version>
+    <Version>0.1.1</Version>
     <Optimize>True</Optimize>
     <OutputType>Library</OutputType>
     <Authors>Alberto De Pena</Authors>
