@@ -5,7 +5,6 @@ open System.Linq
 open System.Threading.Tasks
 open Microsoft.Azure.Documents
 open Microsoft.Azure.Documents.Client
-open Microsoft.Azure.Documents.Linq
 open FSharp.Control.Tasks.ContextInsensitive
 
 module Models =
@@ -89,6 +88,8 @@ module Service =
 
                 let collection = DocumentCollection(Id = options.CollectionId)
                 let options = RequestOptions(OfferThroughput = Nullable(1000))
+
+                collection.PartitionKey.Paths.Add("/subject_id")
 
                 let! _ = client.CreateDatabaseIfNotExistsAsync(database)
                 let! _ = client.CreateDocumentCollectionIfNotExistsAsync(databaseUri, collection, options)
