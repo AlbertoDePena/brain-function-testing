@@ -1,8 +1,0 @@
-{
-  "Jwt": {
-    "SecretKey": "demobftauthapi",
-    "Issuer": "http://localhost:58524/",
-    "Audience": "http://localhost:58524/",
-    "ExpireMinutes": 30
-  }
-}
