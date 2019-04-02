@@ -1,5 +1,6 @@
 ﻿namespace BFT.AzureFuncApp
 
+open System
 open Microsoft.Azure.WebJobs
 open DurableFunctions.FSharp
 open System.Net.Http
@@ -11,25 +12,34 @@ open Models
 [<RequireQualifiedAccess>]
 module Activities =
 
-  let sayHello = 
-    Activity.define "SayHelloActivity" (sprintf "Hello typed %s!")
+  let storeTestResults =
+
+      let run =
+        let options = {
+          EndpointUrl = Environment.GetEnvironmentVariable("DatabaseEndpointUrl")
+          AccountKey = Environment.GetEnvironmentVariable("DatabaseAccountKey")
+          DatabaseId = "testers"
+          CollectionId = "testers"
+        }
+
+        TesterAPI.insertOrUpdateTestResults options
+
+      Activity.define "store-test-results-activity" run
 
 [<RequireQualifiedAccess>]
 module Orchestrators =
 
-  let processTestResults = orchestrator {
-    let! hello1 = Activity.call Activities.sayHello "Tokyo"
-    let! hello2 = Activity.call Activities.sayHello "Seattle"
-    let! hello3 = Activity.call Activities.sayHello "London"
+  let processTestResults input = orchestrator {
+    let! _ = Activity.call Activities.storeTestResults input
 
-    return [hello1; hello2; hello3]
+    return ()
   }
 
 module Functions =
 
-  [<FunctionName("SayHelloActivity")>]
-  let SayHelloActivity([<ActivityTrigger>] name) = 
-    Activities.sayHello.run name
+  [<FunctionName("store-test-results-activity")>]
+  let StoreTestResultsActivity([<ActivityTrigger>] input) = 
+    Activities.storeTestResults.run input
 
   [<FunctionName("process-test-results-orchestration")>]
   let ProcessTestResultsOrchestration ([<OrchestrationTrigger>] context: DurableOrchestrationContext) = 
@@ -62,6 +72,8 @@ module Functions =
           language = formData.["language"]
           report_data = formData.["report_data"]
         }
+
+      if String.IsNullOrWhiteSpace(testResults.subject_id) then invalidOp "Test results must have a subject ID"
 
       let! orchestrationId = starter.StartNewAsync ("process-test-results-orchestration", testResults)
 

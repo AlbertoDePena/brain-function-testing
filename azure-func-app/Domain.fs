@@ -60,14 +60,14 @@ module Models =
 
     type GetTester = EnsureCreated -> GetClient -> DatabaseOptions -> SubjectId -> Task<Tester option>
 
-    type InsertTestResults = GetTester -> EnsureCreated -> GetClient -> DatabaseOptions -> TestResults -> Task<unit>
+    type StoreTestResults = GetTester -> EnsureCreated -> GetClient -> DatabaseOptions -> TestResults -> Task<unit>
 
 [<RequireQualifiedAccess>]
-module Service =
+module TesterAPI =
     open Models
     open BFT.Extensions
 
-    let getClient : GetClient =
+    let private getClient : GetClient =
         fun (EndpointUrl endpointUrl) (AccountKey accountKey) ->
             if String.IsNullOrWhiteSpace(endpointUrl) then raise (ArgumentNullException("endpointUrl"))
             if String.IsNullOrWhiteSpace(accountKey) then raise (ArgumentNullException("accountKey"))
@@ -75,7 +75,7 @@ module Service =
             let uri = Uri(endpointUrl)
             new DocumentClient(uri, accountKey)
 
-    let ensureCreated : EnsureCreated =
+    let private ensureCreated : EnsureCreated =
         fun getClient options ->
             task {    
                 let client = getClient (EndpointUrl options.EndpointUrl) (AccountKey options.AccountKey)
@@ -97,7 +97,7 @@ module Service =
                 return client
             }
 
-    let getTester : GetTester =
+    let private getTester : GetTester =
         fun ensureCreated getClient options (SubjectId subjectId) ->
             task {
                 if String.IsNullOrWhiteSpace(subjectId) then raise (ArgumentNullException("subjectId"))
@@ -119,7 +119,7 @@ module Service =
                 return result
             }
 
-    let insertTestResults : InsertTestResults =
+    let private storeTestResults : StoreTestResults =
         fun getTester ensureCreated getClient options testResults ->
             task {                
                 let! testerOption = getTester ensureCreated getClient options (SubjectId testResults.subject_id)
@@ -150,5 +150,8 @@ module Service =
 
                 return ()
             }
+
+    let insertOrUpdateTestResults =
+        fun options testResults -> storeTestResults getTester ensureCreated getClient options testResults            
 
     
