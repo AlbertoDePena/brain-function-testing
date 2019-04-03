@@ -4,3 +4,4 @@
 **/.vs/
 **/dist/
 **/packages/
+**/local.settings.json

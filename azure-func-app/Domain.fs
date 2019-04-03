@@ -62,6 +62,8 @@ module Models =
 
     type StoreTestResults = GetTester -> EnsureCreated -> GetClient -> DatabaseOptions -> TestResults -> Task<unit>
 
+    type StoreTester = GetTester -> EnsureCreated -> GetClient -> DatabaseOptions -> Tester -> Task<unit>
+
 [<RequireQualifiedAccess>]
 module TesterAPI =
     open Models
@@ -136,22 +138,57 @@ module TesterAPI =
 
                     client.CreateDocumentAsync(collectionUri, newTester)
 
-                let update tester =
-                    let updatedTester = { tester with test_results = tester.test_results @ [testResults] }
+                let update existingTester =
+                    let updatedTester = { existingTester with test_results = existingTester.test_results @ [testResults] }
 
-                    let documentUri = UriFactory.CreateDocumentUri(options.DatabaseId, options.CollectionId, tester.subject_id)
+                    let documentUri = UriFactory.CreateDocumentUri(options.DatabaseId, options.CollectionId, existingTester.id)
 
                     client.ReplaceDocumentAsync(documentUri, updatedTester)
 
                 let! _ =
                     match testerOption with
                     | None -> create ()
-                    | Some tester -> update tester
+                    | Some existingTester -> update existingTester
 
                 return ()
             }
 
+    let storeTester : StoreTester =
+        fun getTester ensureCreated getClient options tester ->
+            task {
+                let! testerOption = getTester ensureCreated getClient options (SubjectId tester.subject_id)
+
+                use! client = ensureCreated getClient options
+
+                let create () =
+                    let newTester = { tester with test_results = [] }
+
+                    let collectionUri = UriFactory.CreateDocumentCollectionUri(options.DatabaseId, options.CollectionId)
+
+                    client.CreateDocumentAsync(collectionUri, newTester)
+
+                let update existingTester =
+                    let updatedTester = { existingTester with first_name = tester.first_name; last_name = tester.last_name; email = tester.email }
+
+                    let documentUri = UriFactory.CreateDocumentUri(options.DatabaseId, options.CollectionId, existingTester.id)
+
+                    client.ReplaceDocumentAsync(documentUri, updatedTester)
+
+                let! _ =
+                    match testerOption with
+                    | None -> create ()
+                    | Some existingTester -> update existingTester
+
+                return ()
+            }            
+
+    let findTester =
+        fun options subjectId -> getTester ensureCreated getClient options subjectId           
+
     let insertOrUpdateTestResults =
-        fun options testResults -> storeTestResults getTester ensureCreated getClient options testResults            
+        fun options testResults -> storeTestResults getTester ensureCreated getClient options testResults    
+
+    let insertOrUpdateTester =
+        fun options tester -> storeTester getTester ensureCreated getClient options tester                
 
     

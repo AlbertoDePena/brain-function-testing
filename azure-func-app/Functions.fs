@@ -8,6 +8,25 @@ open Microsoft.Extensions.Logging
 open Microsoft.Azure.WebJobs.Extensions.Http
 open FSharp.Control.Tasks.ContextInsensitive
 open Models
+open Microsoft.AspNetCore.Http
+open Microsoft.AspNetCore.Mvc
+open Newtonsoft.Json
+
+[<RequireQualifiedAccess>]
+module Settings =
+
+  let getEnvName name =
+    let value = Environment.GetEnvironmentVariable(name)
+    if String.IsNullOrWhiteSpace(value) then
+      invalidOp (sprintf "App setting %s not found" name)
+    else value
+
+  let getDatabaseOptions () = {
+    EndpointUrl = getEnvName "DatabaseEndpointUrl"
+    AccountKey = getEnvName "DatabaseAccountKey"
+    DatabaseId = "testers"
+    CollectionId = "testers"
+  }
 
 [<RequireQualifiedAccess>]
 module Activities =
@@ -15,16 +34,11 @@ module Activities =
   let storeTestResults =
 
       let run =
-        let options = {
-          EndpointUrl = Environment.GetEnvironmentVariable("DatabaseEndpointUrl")
-          AccountKey = Environment.GetEnvironmentVariable("DatabaseAccountKey")
-          DatabaseId = "testers"
-          CollectionId = "testers"
-        }
+        let options = Settings.getDatabaseOptions ()
 
         TesterAPI.insertOrUpdateTestResults options
 
-      Activity.define "store-test-results-activity" run
+      Activity.defineTask "store-test-results-activity" run
 
 [<RequireQualifiedAccess>]
 module Orchestrators =
@@ -81,3 +95,42 @@ module Functions =
 
       return starter.CreateCheckStatusResponse(req, orchestrationId)
     }
+
+  [<FunctionName("get-tester-http-trigger")>]
+  let GetTesterHttpTriger 
+    ([<HttpTrigger(AuthorizationLevel.Function, "get")>] req: HttpRequest, log: ILogger) =
+    task {
+      log.LogInformation("Getting tester data...")
+
+      let subjectId = req.Query.["subject_id"].ToString()
+
+      if String.IsNullOrWhiteSpace(subjectId) then invalidOp "subject_id query param is required"
+
+      let options = Settings.getDatabaseOptions()
+
+      let! testerOption = TesterAPI.findTester options (SubjectId subjectId)
+
+      return
+        match testerOption with
+        | None -> NotFoundObjectResult(sprintf "Tester with subject ID '%s' not found" subjectId) :> IActionResult
+        | Some tester -> OkObjectResult(tester) :> IActionResult
+    }
+
+  [<FunctionName("upsert-tester-http-trigger")>]
+  let UpsertTesterHttpTriger 
+    ([<HttpTrigger(AuthorizationLevel.Function, "post")>] req: HttpRequest, log: ILogger) =
+    task {
+      log.LogInformation("Upserting tester...")
+
+      let! json = req.ReadAsStringAsync()
+
+      let tester = JsonConvert.DeserializeObject<Tester>(json)
+
+      if box tester |> isNull then invalidOp "Tester payload is required"
+
+      let options = Settings.getDatabaseOptions()
+
+      let! _ = TesterAPI.insertOrUpdateTester options tester
+
+      return NoContentResult()
+    }    
