@@ -59,7 +59,7 @@ module Models =
 
     type GetClient = DatabaseOptions -> Async<DocumentClient>
 
-    type GetTester =  DocumentClient -> DatabaseOptions -> SubjectId -> Async<Tester option>
+    type GetTester =  DocumentClient -> DatabaseId -> CollectionId -> SubjectId -> Async<Tester option>
 
     type UpsertTestResults = GetTester -> GetClient -> DatabaseOptions -> TestResults -> Async<unit>
 

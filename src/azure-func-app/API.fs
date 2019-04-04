@@ -33,7 +33,7 @@ module private Testers =
             }
 
     let getTester : GetTester =
-        fun client options (SubjectId subjectId) ->
+        fun client (DatabaseId databaseId) (CollectionId collectionId) (SubjectId subjectId) ->
             async {
                 if String.IsNullOrWhiteSpace(subjectId) then raise (ArgumentNullException("subjectId"))
 
@@ -41,7 +41,7 @@ module private Testers =
 
                 let! testers = 
                     client.CreateDocumentQuery<Tester>(
-                        UriFactory.CreateDocumentCollectionUri(options.DatabaseId, options.CollectionId), query).ToListAsync() 
+                        UriFactory.CreateDocumentCollectionUri(databaseId, collectionId), query).ToListAsync() 
                     |> Async.AwaitTask
 
                 return Seq.tryHead testers
@@ -52,7 +52,11 @@ module private Testers =
             async {     
                 use! client = getClient options
 
-                let! testerOption = getTester client options (SubjectId testResults.subject_id)
+                let databaseId = (DatabaseId options.DatabaseId)
+                let collectionId = (CollectionId options.CollectionId)
+                let subjectId = (SubjectId testResults.subject_id)
+
+                let! testerOption = getTester client databaseId collectionId subjectId
 
                 let create () =
                     let newTester = {
@@ -87,7 +91,11 @@ module private Testers =
             async {
                 use! client = getClient options
 
-                let! testerOption = getTester client options (SubjectId tester.subject_id)
+                let databaseId = (DatabaseId options.DatabaseId)
+                let collectionId = (CollectionId options.CollectionId)
+                let subjectId = (SubjectId tester.subject_id)
+
+                let! testerOption = getTester client databaseId collectionId subjectId
 
                 let create () =
                     let newTester = { 
@@ -123,13 +131,17 @@ module private Testers =
 
 [<RequireQualifiedAccess>]
 module TesterAPI =
+    open Models
    
     let getTester =
         fun options subjectId -> 
             async {
                 use! client = Testers.getClient options 
 
-                return! Testers.getTester client options subjectId   
+                let databaseId = (DatabaseId options.DatabaseId)
+                let collectionId = (CollectionId options.CollectionId)
+
+                return! Testers.getTester client databaseId collectionId subjectId   
             }        
 
     let upsertTestResults =
