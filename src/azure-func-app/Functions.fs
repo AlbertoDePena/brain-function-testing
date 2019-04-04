@@ -15,15 +15,15 @@ open Newtonsoft.Json
 [<RequireQualifiedAccess>]
 module Settings =
 
-  let getEnvName name =
+  let getAppSettings name =
     let value = Environment.GetEnvironmentVariable(name)
     if String.IsNullOrWhiteSpace(value) then
       invalidOp (sprintf "App setting %s not found" name)
     else value
 
   let getDatabaseOptions () = {
-    EndpointUrl = getEnvName "DatabaseEndpointUrl"
-    AccountKey = getEnvName "DatabaseAccountKey"
+    EndpointUrl = getAppSettings "DatabaseEndpointUrl"
+    AccountKey = getAppSettings "DatabaseAccountKey"
     DatabaseId = "testers"
     CollectionId = "testers"
   }
@@ -31,29 +31,29 @@ module Settings =
 [<RequireQualifiedAccess>]
 module Activities =
 
-  let storeTestResults =
+  let upsertTestResults =
 
-      let run =
+      let run testResults =
         let options = Settings.getDatabaseOptions ()
 
-        TesterAPI.insertOrUpdateTestResults options
+        TesterAPI.upsertTestResults options testResults |> Async.StartAsTask
 
-      Activity.defineTask "store-test-results-activity" run
+      Activity.defineTask "upsert-test-results-activity" run
 
 [<RequireQualifiedAccess>]
 module Orchestrators =
 
   let processTestResults input = orchestrator {
-    let! _ = Activity.call Activities.storeTestResults input
+    let! _ = Activity.call Activities.upsertTestResults input
 
     return ()
   }
 
 module Functions =
 
-  [<FunctionName("store-test-results-activity")>]
-  let StoreTestResultsActivity([<ActivityTrigger>] input) = 
-    Activities.storeTestResults.run input
+  [<FunctionName("upsert-test-results-activity")>]
+  let UpsertTestResultsActivity([<ActivityTrigger>] input) = 
+    Activities.upsertTestResults.run input
 
   [<FunctionName("process-test-results-orchestration")>]
   let ProcessTestResultsOrchestration ([<OrchestrationTrigger>] context: DurableOrchestrationContext) = 
@@ -99,7 +99,7 @@ module Functions =
   [<FunctionName("get-tester-http-trigger")>]
   let GetTesterHttpTriger 
     ([<HttpTrigger(AuthorizationLevel.Function, "get")>] req: HttpRequest, log: ILogger) =
-    task {
+    async {
       log.LogInformation("Getting tester data...")
 
       let subjectId = req.Query.["subject_id"].ToString()
@@ -108,21 +108,21 @@ module Functions =
 
       let options = Settings.getDatabaseOptions()
 
-      let! testerOption = TesterAPI.findTester options (SubjectId subjectId)
+      let! testerOption = TesterAPI.getTester options (SubjectId subjectId)
 
       return
         match testerOption with
         | None -> NotFoundObjectResult(sprintf "Tester with subject ID '%s' not found" subjectId) :> IActionResult
         | Some tester -> OkObjectResult(tester) :> IActionResult
-    }
+    } |> Async.RunSynchronously
 
   [<FunctionName("upsert-tester-http-trigger")>]
   let UpsertTesterHttpTriger 
     ([<HttpTrigger(AuthorizationLevel.Function, "post")>] req: HttpRequest, log: ILogger) =
-    task {
+    async {
       log.LogInformation("Upserting tester...")
 
-      let! json = req.ReadAsStringAsync()
+      let! json = req.ReadAsStringAsync() |> Async.AwaitTask
 
       let tester = JsonConvert.DeserializeObject<Tester>(json)
 
@@ -130,7 +130,7 @@ module Functions =
 
       let options = Settings.getDatabaseOptions()
 
-      let! _ = TesterAPI.insertOrUpdateTester options tester
+      let! _ = TesterAPI.upsertTester options tester
 
       return NoContentResult()
-    }    
+    } |> Async.RunSynchronously
