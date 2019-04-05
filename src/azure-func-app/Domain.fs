@@ -10,6 +10,7 @@ module Async =
   let map f x = x |> bind (f >> singleton)
 
 module Models =
+    open Microsoft.Azure.Documents
     open Microsoft.Azure.Documents.Client
 
     [<CLIMutable>]
@@ -57,10 +58,22 @@ module Models =
 
     type SubjectId = SubjectId of string
 
-    type GetClient = DatabaseOptions -> Async<DocumentClient>
+    type DocumentId = DocumentId of string
 
-    type GetTester =  DocumentClient -> DatabaseId -> CollectionId -> SubjectId -> Async<Tester option>
+    type GetClient = 
+        DatabaseOptions -> Async<DocumentClient>
 
-    type UpsertTestResults = GetTester -> GetClient -> DatabaseOptions -> TestResults -> Async<unit>
+    type GetTester = 
+        DocumentClient -> DatabaseId -> CollectionId -> SubjectId -> Async<Tester option>
 
-    type UpsertTester = GetTester -> GetClient -> DatabaseOptions -> Tester -> Async<unit>
+    type CreateDocument = 
+        DocumentClient -> DatabaseId -> CollectionId -> Tester -> Async<ResourceResponse<Document>>
+
+    type ReplaceDocument = 
+        DocumentClient -> DatabaseId -> CollectionId -> DocumentId -> Tester -> Async<ResourceResponse<Document>>
+
+    type SaveTestResults = 
+        CreateDocument -> ReplaceDocument -> GetTester -> GetClient -> DatabaseOptions -> TestResults -> Async<unit>
+
+    type SaveTester = 
+        CreateDocument -> ReplaceDocument -> GetTester -> GetClient -> DatabaseOptions -> Tester -> Async<unit>

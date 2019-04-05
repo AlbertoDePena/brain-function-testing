@@ -31,36 +31,36 @@ module Settings =
 [<RequireQualifiedAccess>]
 module Activities =
 
-  let upsertTestResults =
+  let saveTestResults =
 
       let run testResults =
         let options = Settings.getDatabaseOptions ()
 
-        TesterAPI.upsertTestResults options testResults |> Async.StartAsTask
+        TesterAPI.saveTestResults options testResults |> Async.StartAsTask
 
-      Activity.defineTask "upsert-test-results-activity" run
+      Activity.defineTask "save-test-results-activity" run
 
 [<RequireQualifiedAccess>]
 module Orchestrators =
 
   let processTestResults input = orchestrator {
-    let! _ = Activity.call Activities.upsertTestResults input
+    let! _ = Activity.call Activities.saveTestResults input
 
     return ()
   }
 
 module Functions =
 
-  [<FunctionName("upsert-test-results-activity")>]
-  let UpsertTestResultsActivity([<ActivityTrigger>] input) = 
-    Activities.upsertTestResults.run input
+  [<FunctionName("save-test-results-activity")>]
+  let SaveTestResultsActivity([<ActivityTrigger>] input) = 
+    Activities.saveTestResults.run input
 
   [<FunctionName("process-test-results-orchestration")>]
   let ProcessTestResultsOrchestration ([<OrchestrationTrigger>] context: DurableOrchestrationContext) = 
     Orchestrator.run (Orchestrators.processTestResults, context)
 
-  [<FunctionName("post-test-results-http-trigger")>]
-  let PostTestResultsHttpTriger 
+  [<FunctionName("save-test-results-http-trigger")>]
+  let SaveTestResultsHttpTriger 
     ([<HttpTrigger(AuthorizationLevel.Function, "post")>] req: HttpRequestMessage, 
      [<OrchestrationClient>] starter: DurableOrchestrationClient, 
      log: ILogger) =
@@ -104,23 +104,24 @@ module Functions =
 
       let subjectId = req.Query.["subject_id"].ToString()
 
-      if String.IsNullOrWhiteSpace(subjectId) then invalidOp "subject_id query param is required"
+      if String.IsNullOrWhiteSpace(subjectId) then
+        return BadRequestObjectResult("subject_id query param is required") :> IActionResult
+      else
+        let options = Settings.getDatabaseOptions()
 
-      let options = Settings.getDatabaseOptions()
+        let! testerOption = TesterAPI.getTester options (SubjectId subjectId)
 
-      let! testerOption = TesterAPI.getTester options (SubjectId subjectId)
-
-      return
-        match testerOption with
-        | None -> NotFoundObjectResult(sprintf "Tester with subject ID '%s' not found" subjectId) :> IActionResult
-        | Some tester -> OkObjectResult(tester) :> IActionResult
+        return
+          match testerOption with
+          | None -> NotFoundObjectResult(sprintf "Tester with subject ID '%s' not found" subjectId) :> IActionResult
+          | Some tester -> OkObjectResult(tester) :> IActionResult
     } |> Async.RunSynchronously
 
-  [<FunctionName("upsert-tester-http-trigger")>]
-  let UpsertTesterHttpTriger 
+  [<FunctionName("save-tester-http-trigger")>]
+  let SaveTesterHttpTriger 
     ([<HttpTrigger(AuthorizationLevel.Function, "post")>] req: HttpRequest, log: ILogger) =
     async {
-      log.LogInformation("Upserting tester...")
+      log.LogInformation("Saving tester...")
 
       let! json = req.ReadAsStringAsync() |> Async.AwaitTask
 
@@ -130,7 +131,7 @@ module Functions =
 
       let options = Settings.getDatabaseOptions()
 
-      let! _ = TesterAPI.upsertTester options tester
+      let! _ = TesterAPI.saveTester options tester
 
       return NoContentResult()
     } |> Async.RunSynchronously

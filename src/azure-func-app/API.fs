@@ -1,6 +1,5 @@
 namespace BFT.AzureFuncApp
 
-[<RequireQualifiedAccess>]
 module private Testers =
     open System
     open Models
@@ -32,6 +31,28 @@ module private Testers =
                 return client
             }
 
+    let createDocument : CreateDocument =
+        fun client (DatabaseId databaseId) (CollectionId collectionId) document ->
+            async {
+                let! result =
+                    client.CreateDocumentAsync(
+                        UriFactory.CreateDocumentCollectionUri(databaseId, collectionId), document) 
+                    |> Async.AwaitTask
+
+                return result
+            }
+
+    let replaceDocument : ReplaceDocument =
+        fun client (DatabaseId databaseId) (CollectionId collectionId) (DocumentId documentId) document ->
+            async {
+                let! result =
+                    client.ReplaceDocumentAsync(
+                        UriFactory.CreateDocumentUri(databaseId, collectionId, documentId), document) 
+                    |> Async.AwaitTask
+
+                return result
+            }
+
     let getTester : GetTester =
         fun client (DatabaseId databaseId) (CollectionId collectionId) (SubjectId subjectId) ->
             async {
@@ -47,8 +68,8 @@ module private Testers =
                 return Seq.tryHead testers
             }
 
-    let upsertTestResults : UpsertTestResults =
-        fun getTester getClient options testResults ->
+    let saveTestResults : SaveTestResults =
+        fun createDocument replaceDocument getTester getClient options testResults ->
             async {     
                 use! client = getClient options
 
@@ -64,9 +85,7 @@ module private Testers =
                         subject_id = testResults.subject_id; test_results = [testResults]
                     }
 
-                    client.CreateDocumentAsync(
-                        UriFactory.CreateDocumentCollectionUri(options.DatabaseId, options.CollectionId), newTester) 
-                    |> Async.AwaitTask
+                    createDocument client databaseId collectionId newTester
 
                 let replace existingTester =
                     let updatedTester = { 
@@ -74,9 +93,9 @@ module private Testers =
                             test_results = existingTester.test_results @ [testResults] 
                     }
 
-                    client.ReplaceDocumentAsync(
-                        UriFactory.CreateDocumentUri(options.DatabaseId, options.CollectionId, existingTester.id), updatedTester) 
-                    |> Async.AwaitTask
+                    let documentId = (DocumentId existingTester.id)
+
+                    replaceDocument client databaseId collectionId documentId updatedTester
 
                 let! _ =
                     match testerOption with
@@ -86,8 +105,8 @@ module private Testers =
                 return ()
             }
 
-    let upsertTester : UpsertTester =
-        fun getTester getClient options tester ->
+    let saveTester : SaveTester =
+        fun createDocument replaceDocument getTester getClient options tester ->
             async {
                 use! client = getClient options
 
@@ -103,10 +122,7 @@ module private Testers =
                             test_results = [] 
                     }
 
-                    client.CreateDocumentAsync(
-                        UriFactory.CreateDocumentCollectionUri(
-                            options.DatabaseId, options.CollectionId), newTester) 
-                    |> Async.AwaitTask
+                    createDocument client databaseId collectionId newTester
 
                 let replace existingTester =
                     let updatedTester = { 
@@ -116,10 +132,9 @@ module private Testers =
                             email = tester.email 
                     }
 
-                    client.ReplaceDocumentAsync(
-                        UriFactory.CreateDocumentUri(
-                            options.DatabaseId, options.CollectionId, existingTester.id), updatedTester) 
-                    |> Async.AwaitTask
+                    let documentId = (DocumentId existingTester.id)
+
+                    replaceDocument client databaseId collectionId documentId updatedTester
 
                 let! _ =
                     match testerOption with
@@ -132,24 +147,25 @@ module private Testers =
 [<RequireQualifiedAccess>]
 module TesterAPI =
     open Models
+    open Testers
    
     let getTester =
         fun options subjectId -> 
             async {
-                use! client = Testers.getClient options 
+                use! client = getClient options 
 
                 let databaseId = (DatabaseId options.DatabaseId)
                 let collectionId = (CollectionId options.CollectionId)
 
-                return! Testers.getTester client databaseId collectionId subjectId   
+                return! getTester client databaseId collectionId subjectId   
             }        
 
-    let upsertTestResults =
+    let saveTestResults =
         fun options testResults -> 
-            Testers.upsertTestResults Testers.getTester Testers.getClient options testResults    
+            saveTestResults createDocument replaceDocument Testers.getTester getClient options testResults    
 
-    let upsertTester =
+    let saveTester =
         fun options tester -> 
-            Testers.upsertTester Testers.getTester Testers.getClient options tester                
+            saveTester createDocument replaceDocument Testers.getTester getClient options tester                
 
     
