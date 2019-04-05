@@ -1,10 +1,10 @@
-import { getUrlParameter, navigateTo } from '../core/router';
+import { navigateTo } from '../core/router';
 
-import conditions from '../conditions';
-import temperature from '../temperature';
+import about from '../about';
+import testLinkGenerator from '../test-link-generator';
 
 const initialState = () => {
-  return { currentRoute: 'conditions' };
+  return { currentRoute: 'about' };
 };
 
 const actions = update => {
@@ -14,11 +14,11 @@ const actions = update => {
 };
 
 const view = (state, actions) => {
-  if (state.currentRoute.endsWith('temperature')) {
-    return temperature.view(state, actions, getUrlParameter('type'));
+  if (state.currentRoute.endsWith('about')) {
+    return about.view();
   }
 
-  return conditions.view(state, actions);
+  return testLinkGenerator.view(state, actions);
 };
 
 const navigation = { initialState, actions, view, navigateTo };
