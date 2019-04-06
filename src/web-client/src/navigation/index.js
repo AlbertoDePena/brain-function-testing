@@ -1,5 +1,3 @@
-import { navigateTo } from '../core/router';
-
 import about from '../about';
 import testLinkGenerator from '../test-link-generator';
 
@@ -21,6 +19,6 @@ const view = (state, actions) => {
   return testLinkGenerator.view(state, actions);
 };
 
-const navigation = { initialState, actions, view, navigateTo };
+const navigation = { initialState, actions, view };
 
 export default navigation;

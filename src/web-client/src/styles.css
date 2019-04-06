@@ -10,10 +10,7 @@ body {
   z-index: 99;
   border-top: 1px solid #eee;
   border-bottom: 1px solid #eee;
-}
-
-.navbar > .container {
-  width: 100%;
+  padding: 0 20px;
 }
 
 .navbar-list {
@@ -36,6 +33,14 @@ body {
   color: #222;
 }
 
-.page {
-  margin: 10px 0;
+.box {
+  border: 1px solid #D1D1D1;
+  padding: 40px;
+  border-radius: 4px;
+  margin: 40px auto;
 }
+
+form#textLinkGeneratorForm {
+  max-width: 400px;
+}
+
