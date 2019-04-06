@@ -35,8 +35,10 @@ const view = (state, actions) => {
       ${navigation.view(state, actions)}
       <hr />
       <div class="container">
-        <div class="twelve columns">
-          <pre>${JSON.stringify(state, null, 4)}</pre>
+        <div class="row">
+          <div class="column">
+            <pre>${JSON.stringify(state, null, 4)}</pre>
+          </div>
         </div>
       </div>
   `;
