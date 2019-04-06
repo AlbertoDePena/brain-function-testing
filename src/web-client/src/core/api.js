@@ -11,3 +11,37 @@
  * @property {String} test_config = Test configuration number (0-9) or a list of test codes delimited by a colon
  * @property {String} test_lang = Language to present the test in, defaults to english_us
  */
+
+/**
+ * build payload
+ * @param {String} firstName 
+ * @param {String} lastName 
+ * @param {Date} birthDate 
+ * @returns {TestLinkRequest} test link request
+ */
+function buildPayload(firstName, lastName, birthDate) {
+  let payload = { };
+
+  return payload;
+}
+
+/**
+ * 
+ * @param {String} firstName 
+ * @param {String} lastName 
+ * @param {Date} birthDate 
+ */
+export function generateTestLink(firstName, lastName, birthDate) {
+  const payload = buildPayload(firstName, lastName, birthDate);
+
+  fetch('https://sync.cnsvs.com/sync.php', {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: JSON.stringify(payload)
+  }).then(res => {
+    console.log('Request complete! response:', res);
+  }).catch(error => console.error(error));
+}
