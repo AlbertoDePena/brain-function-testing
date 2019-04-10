@@ -116,6 +116,6 @@ const view = (state, actions) => {
   `;
 };
 
-const testerGenerator = { initialState, actions, view };
+const test = { initialState, actions, view };
 
-export default testerGenerator;
+export default test;

@@ -3,21 +3,21 @@ import '../styles.css';
 import { html } from 'lit-html';
 import { P } from 'patchinko/explicit';
 
-import testLinkGenerator from '../test-link-generator';
+import test from '../test';
 import navigation from '../navigation';
 
 const initialState = () =>
   P(
     {},
     navigation.initialState(),
-    testLinkGenerator.initialState()
+    test.initialState()
   );
 
 const actions = update =>
   P(
     {},
     navigation.actions(update),
-    testLinkGenerator.actions(update)
+    test.actions(update)
   );
 
 const view = (state, actions) => {

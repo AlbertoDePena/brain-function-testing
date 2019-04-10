@@ -1,5 +1,5 @@
 import about from '../about';
-import testLinkGenerator from '../test-link-generator';
+import test from '../test';
 
 const initialState = () => {
   return { route: '' };
@@ -14,7 +14,7 @@ const actions = update => {
 const view = (state, actions) => {
   return state.route.endsWith('about') ?
     about.view() :
-    testLinkGenerator.view(state, actions);
+    test.view(state, actions);
 };
 
 const navigation = { initialState, actions, view };
