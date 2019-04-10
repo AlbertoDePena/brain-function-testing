@@ -5,10 +5,13 @@ import { generateTestLink } from '../core/api';
 
 const initialState = () => {
   return {
-    patient: {
+    tester: {
       firstName: '',
       lastName: '',
-      birthDate: ''
+      email: '',
+      dobMonth: '',
+      dobDay: '',      
+      dobYear: ''
     }
   };
 };
@@ -16,51 +19,103 @@ const initialState = () => {
 const actions = update => {
   return {
     changeFirstName: value => {
-      update({ patient: PS({ firstName: value }) });
+      update({ tester: PS({ firstName: value }) });
     },
     changeLastName: value => {
-      update({ patient: PS({ lastName: value }) });
+      update({ tester: PS({ lastName: value }) });
     },
-    changeBirthDate: value => {
-      update({ patient: PS({ birthDate: value }) });
+    changeEmail: value => {
+      update({ tester: PS({ email: value }) });
     },
-    generate: (firstName, lastName, birthDate) => {
-      generateTestLink(firstName, lastName, birthDate);
+    changeDobMonth: value => {
+      update({ tester: PS({ dobMonth: value }) });
+    },
+    changeDobDay: value => {
+      update({ tester: PS({ dobDay: value }) });
+    },   
+    changeDobYear: value => {
+      update({ tester: PS({ dobYear: value }) });
+    },
+    generate: tester => {
+      generateTestLink(tester);
     }
   };
 };
 
+const months = () => {
+  const dict = [
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+  ];
+  
+  return (dict.map(month => html`<option value=${month}>${month}</option>`));
+};
+
+const days = () => {
+  return ([...Array(31).keys()].map(day => {
+    let item = day + 1;
+    item = item >= 10 ? item : `0${item}`;
+    return html`<option value=${item}>${item}</option>`;
+  }));
+};
+
+const years = () => {
+  return ([...Array(100).keys()].reverse().map(year => {
+    let item = year + 1920;
+    return html`<option value=${item}>${item}</option>`;
+  }));
+};
+
 const view = (state, actions) => {
   return html`
-  <div class="container">
-    <form id="textLinkGeneratorForm" class="box">
-      <div class="row">
-        <h6 class="u-text-center">Generate Test Link</h6>
-        <div class="column">
-          <label for="firstName">First Name</label>
-          <input id="firstName" class="u-full-width" type="text" placeholder="First Name" .value=${state.patient.firstName}
-            @change=${e=> actions.changeFirstName(e.target.value)} />
+    <form @submit=${(e) => { e.preventDefault(); actions.generate(state.tester); }}>
+      <div class="input-control">
+        <label for="firstName">First Name</label>
+        <input id="firstName" type="text" .value=${state.tester.firstName} @change=${(e)=>
+        actions.changeFirstName(e.target.value)} />
+      </div>
+      <div class="input-control">
+        <label for="lastName">Last Name</label>
+        <input id="lastName" type="text" .value=${state.tester.lastName} @change=${(e)=>
+        actions.changeLastName(e.target.value)} />
+      </div>
+      <div class="input-control">
+        <label for="email">Email</label>
+        <input id="email" type="email" .value=${state.tester.email} @change=${(e)=>
+          actions.changeEmail(e.target.value)} />
+      </div>
+      <div class="input-control">
+        <label for="birthDate">Date of Birth</label>
+        <select @change=${(e) => actions.changeDobMonth(e.target.value)}>
+          <option>Month</option>
+          ${months()}
+        </select>
+        <select @change=${(e) => actions.changeDobDay(e.target.value)}>
+          <option>Day</option>
+          ${days()}
+        </select>
+        <select @change=${(e) => actions.changeDobYear(e.target.value)}>
+          <option>Year</option>
+          ${years()}
+        </select>
+      </div>
+      <div class="text-time-selection">
+        <div>
+          <input type="radio" name="text-time-selection" id="testNow" value="I'm ready to take my test now" />
+          <label for="testNow">I'm ready to take my test now</label>
         </div>
-        <div class="column">
-          <label for="lastName">Last Name</label>
-          <input id="lastName" class="u-full-width" type="text" placeholder="Last Name" .value=${state.patient.lastName}
-            @change=${e=> actions.changeLastName(e.target.value)} />
-        </div>
-        <div class="column">
-          <label for="birthDate">Birth Date</label>
-          <input id="birthDate" class="u-full-width" type="date" .value=${state.patient.birthDate} @change=${e =>
-      actions.changeBirthDate(e.target.value)} />
-        </div>
-        <div class="column">
-          <button type="button" class="u-full-width button-primary" @click=${() => actions.generate(state.firstName,
-            state.lastName, state.birthDate)} >Generate</button>
+        <div>
+          <input type="radio" name="text-time-selection" id="testLater" value="Let's schedule my test for later" />
+          <label for="testLater">Let's schedule my test for later</label>
         </div>
       </div>
+      <div>
+        <button type="submit">Submit</button>
+      </div>
     </form>
-  </div>
   `;
 };
 
-const patientGenerator = { initialState, actions, view };
+const testerGenerator = { initialState, actions, view };
 
-export default patientGenerator;
+export default testerGenerator;

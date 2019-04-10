@@ -1,5 +1,3 @@
-import 'skeleton-framework/dist/skeleton.css';
-
 import flyd from 'flyd';
 import { render } from 'lit-html';
 import { P } from 'patchinko/explicit';

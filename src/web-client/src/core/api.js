@@ -12,14 +12,22 @@
  * @property {String} test_lang = Language to present the test in, defaults to english_us
  */
 
+ /**
+  * @typedef {Object} Tester
+  * @property {String} firstName 
+  * @property {String} lastName 
+  * @property {String} email 
+  * @property {String} dobMonth
+  * @property {String} dobDay
+  * @property {String} dobYear
+  */
+
 /**
  * build payload
- * @param {String} firstName 
- * @param {String} lastName 
- * @param {Date} birthDate 
+ * @param {Tester} tester 
  * @returns {TestLinkRequest} test link request
  */
-function buildPayload(firstName, lastName, birthDate) {
+function buildPayload(tester) {
   let payload = { };
 
   return payload;
@@ -27,12 +35,10 @@ function buildPayload(firstName, lastName, birthDate) {
 
 /**
  * 
- * @param {String} firstName 
- * @param {String} lastName 
- * @param {Date} birthDate 
+ * @param {Tester} tester
  */
-export function generateTestLink(firstName, lastName, birthDate) {
-  const payload = buildPayload(firstName, lastName, birthDate);
+export function generateTestLink(tester) {
+  const payload = buildPayload(tester);
 
   fetch('https://sync.cnsvs.com/sync.php', {
     method: 'POST',

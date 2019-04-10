@@ -22,24 +22,12 @@ const actions = update =>
 
 const view = (state, actions) => {
   return html`
-      <nav class="navbar">
-        <ul class="navbar-list">
-          <li class="navbar-item">
-            <a class="navbar-link" href="generate-test-link">Generate Test Link</a>
-          </li>
-          <li class="navbar-item">
-            <a class="navbar-link" href="about">About</a>
-          </li>
-        </ul>
-      </nav>
+      <div class="image-container">
+        <img src="http://127.0.0.1:5500/src/web-client/dist/bft.png">
+      </div>
       ${navigation.view(state, actions)}
-      <hr />
-      <div class="container">
-        <div class="row">
-          <div class="column">
-            <pre>${JSON.stringify(state, null, 4)}</pre>
-          </div>
-        </div>
+      <div class="debug">
+        <pre>${JSON.stringify(state, null, 4)}</pre>
       </div>
   `;
 };
