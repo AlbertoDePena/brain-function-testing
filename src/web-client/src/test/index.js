@@ -1,7 +1,8 @@
 import { html } from 'lit-html';
+import { cache } from 'lit-html/directives/cache';
 import { PS } from 'patchinko/explicit';
 
-import { generateTestLink } from '../core/api';
+import { navigateTo } from '../core/router';
 
 const initialState = () => {
   return {
@@ -18,26 +19,26 @@ const initialState = () => {
 
 const actions = update => {
   return {
-    changeFirstName: value => {
-      update({ tester: PS({ firstName: value }) });
+    changeFirstName: firstName => {
+      update({ tester: PS({ firstName }) });
     },
-    changeLastName: value => {
-      update({ tester: PS({ lastName: value }) });
+    changeLastName: lastName => {
+      update({ tester: PS({ lastName }) });
     },
-    changeEmail: value => {
-      update({ tester: PS({ email: value }) });
+    changeEmail: email => {
+      update({ tester: PS({ email }) });
     },
-    changeDobMonth: value => {
-      update({ tester: PS({ dobMonth: value }) });
+    changeDobMonth: dobMonth => {
+      update({ tester: PS({ dobMonth }) });
     },
-    changeDobDay: value => {
-      update({ tester: PS({ dobDay: value }) });
+    changeDobDay: dobDay => {
+      update({ tester: PS({ dobDay }) });
     },   
-    changeDobYear: value => {
-      update({ tester: PS({ dobYear: value }) });
+    changeDobYear: dobYear => {
+      update({ tester: PS({ dobYear }) });
     },
     generate: tester => {
-      generateTestLink(tester);
+      navigateTo('confirm');
     }
   };
 };
@@ -88,15 +89,15 @@ const view = (state, actions) => {
         <label for="birthDate">Date of Birth</label>
         <select @change=${(e) => actions.changeDobMonth(e.target.value)}>
           <option>Month</option>
-          ${months()}
+          ${cache(months())}
         </select>
         <select @change=${(e) => actions.changeDobDay(e.target.value)}>
           <option>Day</option>
-          ${days()}
+          ${cache(days())}
         </select>
         <select @change=${(e) => actions.changeDobYear(e.target.value)}>
           <option>Year</option>
-          ${years()}
+          ${cache(years())}
         </select>
       </div>
       <div class="text-time-selection">

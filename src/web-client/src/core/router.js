@@ -14,16 +14,6 @@
 let onLocationChangedCallback;
 
 /**
- * @param {Location} location
- */
-function getRouteArgs(location) {
-  return {
-    route: location.pathname,
-    query: location.search
-  };
-}
-
-/**
  * @param {locationChangedCallback} locationChangedCallback
  */
 function configureRouter(locationChangedCallback) {
@@ -58,24 +48,25 @@ function configureRouter(locationChangedCallback) {
     e.preventDefault();
     if (href !== location.href) {
       window.history.pushState({}, '', href);
-      onLocationChangedCallback(getRouteArgs(window.location), e);
+      onLocationChangedCallback(window.location.hash, e);
     }
   });
 
   window.addEventListener('popstate', e =>
-    onLocationChangedCallback(getRouteArgs(window.location), e)
+    onLocationChangedCallback(window.location.hash, e)
   );
-  onLocationChangedCallback(getRouteArgs(window.location), null);
+  onLocationChangedCallback(window.location.hash, null);
 }
 
 /**
  * @param {String} route
  */
 function navigateTo(route) {
-  if (window.location.pathname.endsWith(route)) return;
+  const hash = `#/${route}`;
+  if (window.location.hash === hash) return;
   if (!onLocationChangedCallback) return;
-  window.history.pushState({}, '', route);
-  onLocationChangedCallback(getRouteArgs(window.location), null);
+  window.history.pushState({}, '', hash);
+  onLocationChangedCallback(window.location.hash, null);
 }
 
 /**
@@ -85,7 +76,7 @@ function getUrlParameter(name) {
   // eslint-disable-next-line no-useless-escape
   name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
   const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-  const results = regex.exec(window.location.search);
+  const results = regex.exec(window.location.hash);
   return results === null
     ? ''
     : decodeURIComponent(results[1].replace(/\+/g, ' '));

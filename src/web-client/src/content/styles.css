@@ -1,6 +1,9 @@
+html, body {
+  height: 100%;
+}
+
 body {
   margin: 0;
-  height: 100%;
   color: #666;
   background-color: #f2f2f2;
   font-family: "Open Sans", Arial, sans-serif;
@@ -9,14 +12,19 @@ body {
   line-height: 1.7em;
 }
 
+/* main {
+  background-color: #2491eb;
+  height: 450px;
+} */
+
 .image-container {
-  margin: 20px 0;
+  margin: 40px 0;
   text-align: center;
 }
 
 img {
-  max-width: 100%;
-  height: auto;
+  width: 200px;
+  height: 94.33px;
 }
 
 form {
@@ -37,8 +45,7 @@ form .input-control label {
   text-transform: uppercase;
 }
 
-form .input-control input {
-  width: 100%;
+form .input-control input, form .input-control select {
   height: 35px;
   padding-left: 5px;
   border: 1px solid #bbb;
@@ -46,12 +53,12 @@ form .input-control input {
   background-color: #fff;
 }
 
+form .input-control input {
+  width: 100%;
+}
+
 form .input-control select {
-  height: 35px;
-  padding-left: 5px;
-  border: 1px solid #bbb;
-  color: #4e4e4e;
-  background-color: #fff;
+  margin-right: 10px;
 }
 
 form .text-time-selection {
@@ -72,6 +79,26 @@ button {
   font-weight: 600;
   border: none;
   text-transform: uppercase;
+}
+
+.confirmation {
+  line-height: 26px;
+  width: 600px;
+  margin: 0 auto;
+}
+
+.confirmation p {
+  margin: 0;
+}
+
+.confirmation > p {
+  color: #535b8c; 
+  font-size: 18px;
+  text-transform: uppercase;
+}
+
+.confirmation span {
+  font-weight: 700;
 }
 
 

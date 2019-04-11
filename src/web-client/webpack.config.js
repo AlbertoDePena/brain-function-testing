@@ -37,6 +37,6 @@ module.exports = (env, argv) => {
     },
     plugins: [
       new HtmlWebpackPlugin({ template: 'src/index.html' }),
-      new CopyPlugin([{ from: 'src/images/bft.png' }])]
+      new CopyPlugin([{ from: 'src/content/bft.png' }])]
   };
 };

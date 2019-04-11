@@ -1,5 +1,5 @@
-import about from '../about';
 import test from '../test';
+import confirm from '../test/confirm';
 
 const initialState = () => {
   return { route: '' };
@@ -7,13 +7,13 @@ const initialState = () => {
 
 const actions = update => {
   return {
-    updateRoute: routeParams => update({ route: routeParams.route })
+    updateRoute: route => update({ route })
   };
 };
 
 const view = (state, actions) => {
-  return state.route.endsWith('about') ?
-    about.view() :
+  return state.route === '#/confirm' ?
+    confirm.view() :
     test.view(state, actions);
 };
 
