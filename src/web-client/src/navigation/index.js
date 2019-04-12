@@ -13,7 +13,7 @@ const actions = update => {
 
 const view = (state, actions) => {
   return state.route === '#/confirm' ?
-    confirm.view() :
+    confirm.view(state, actions) :
     test.view(state, actions);
 };
 

@@ -1,6 +1,27 @@
 import { html } from 'lit-html';
+import { PS } from 'patchinko/explicit';
 
-const view = () => {
+const initialState = () => {
+  return {
+    confirmation: {
+      instructionsRead: false,
+      usingComputer: false
+    }
+  };
+};
+
+const actions = update => {
+  return {
+    changeInstructionsRead: instructionsRead => {
+      update({ confirmation: PS({ instructionsRead }) });
+    },
+    changeUsingComputer: usingComputer => {
+      update({ confirmation: PS({ usingComputer }) });
+    }
+  };
+};
+
+const view = (state, actions) => {
   return html`
     <div class="view confirmation">
       <p>Before starting your test, read the instructions below:</p>
@@ -28,11 +49,11 @@ const view = () => {
       <p>Confirm:</p>
       <div class="confirm">
         <div>
-          <input id="instructionsRead" type="checkbox" />
+          <input id="instructionsRead" type="checkbox" @change=${(e) => actions.changeInstructionsRead(e.target.checked)} />
           <label for="instructionsRead">I have read the above instructions</label>
         </div>
         <div>
-          <input id="usingComputer" type="checkbox" />
+          <input id="usingComputer" type="checkbox" @change=${(e) => actions.changeUsingComputer(e.target.checked)} />
           <label for="usingComputer">I am using a desktop or laptop computer</label>
         </div>
       </div>
@@ -40,6 +61,6 @@ const view = () => {
   `;
 };
 
-const confirm = { view };
+const confirm = { initialState, actions, view };
 
 export default confirm;

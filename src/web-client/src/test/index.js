@@ -70,33 +70,33 @@ const years = () => {
 const view = (state, actions) => {
   return html`
   <div class="view">
-    <form @submit=${(e)=> { e.preventDefault(); actions.generate(state.tester); }}>
+    <form @submit=${(e) => { e.preventDefault(); actions.generate(state.tester); }}>
       <div class="input-control">
         <label for="firstName">First Name</label>
-        <input id="firstName" type="text" .value=${state.tester.firstName} @change=${(e) =>
-      actions.changeFirstName(e.target.value)} />
+        <input id="firstName" type="text" .value=${state.tester.firstName} @change=${(e)=>
+        actions.changeFirstName(e.target.value)} />
       </div>
       <div class="input-control">
         <label for="lastName">Last Name</label>
-        <input id="lastName" type="text" .value=${state.tester.lastName} @change=${(e) =>
-      actions.changeLastName(e.target.value)} />
+        <input id="lastName" type="text" .value=${state.tester.lastName} @change=${(e)=>
+        actions.changeLastName(e.target.value)} />
       </div>
       <div class="input-control">
         <label for="email">Email</label>
-        <input id="email" type="email" .value=${state.tester.email} @change=${(e) =>
-    actions.changeEmail(e.target.value)} />
+        <input id="email" type="email" .value=${state.tester.email} @change=${(e)=>
+          actions.changeEmail(e.target.value)} />
       </div>
       <div class="input-control">
         <label for="birthDate">Date of Birth</label>
-        <select @change=${(e)=> actions.changeDobMonth(e.target.value)}>
+        <select @change=${(e) => actions.changeDobMonth(e.target.value)}>
           <option>Month</option>
           ${cache(months())}
         </select>
-        <select @change=${(e)=> actions.changeDobDay(e.target.value)}>
+        <select @change=${(e) => actions.changeDobDay(e.target.value)}>
           <option>Day</option>
           ${cache(days())}
         </select>
-        <select @change=${(e)=> actions.changeDobYear(e.target.value)}>
+        <select @change=${(e) => actions.changeDobYear(e.target.value)}>
           <option>Year</option>
           ${cache(years())}
         </select>
