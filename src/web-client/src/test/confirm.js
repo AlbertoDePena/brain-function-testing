@@ -2,7 +2,7 @@ import { html } from 'lit-html';
 
 const view = () => {
   return html`
-    <div class="confirmation">
+    <div class="view confirmation">
       <p>Before starting your test, read the instructions below:</p>
       <ul>
         <li>
@@ -26,6 +26,16 @@ const view = () => {
         </li>
       </ul>
       <p>Confirm:</p>
+      <div class="confirm">
+        <div>
+          <input id="instructionsRead" type="checkbox" />
+          <label for="instructionsRead">I have read the above instructions</label>
+        </div>
+        <div>
+          <input id="usingComputer" type="checkbox" />
+          <label for="usingComputer">I am using a desktop or laptop computer</label>
+        </div>
+      </div>
     </div>
   `;
 };

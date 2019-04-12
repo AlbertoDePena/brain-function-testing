@@ -11,7 +11,7 @@ const initialState = () => {
       lastName: '',
       email: '',
       dobMonth: '',
-      dobDay: '',      
+      dobDay: '',
       dobYear: ''
     }
   };
@@ -33,7 +33,7 @@ const actions = update => {
     },
     changeDobDay: dobDay => {
       update({ tester: PS({ dobDay }) });
-    },   
+    },
     changeDobYear: dobYear => {
       update({ tester: PS({ dobYear }) });
     },
@@ -45,10 +45,10 @@ const actions = update => {
 
 const months = () => {
   const dict = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
   ];
-  
+
   return (dict.map(month => html`<option value=${month}>${month}</option>`));
 };
 
@@ -69,44 +69,45 @@ const years = () => {
 
 const view = (state, actions) => {
   return html`
-    <form @submit=${(e) => { e.preventDefault(); actions.generate(state.tester); }}>
+  <div class="view">
+    <form @submit=${(e)=> { e.preventDefault(); actions.generate(state.tester); }}>
       <div class="input-control">
         <label for="firstName">First Name</label>
-        <input id="firstName" type="text" .value=${state.tester.firstName} @change=${(e)=>
-        actions.changeFirstName(e.target.value)} />
+        <input id="firstName" type="text" .value=${state.tester.firstName} @change=${(e) =>
+      actions.changeFirstName(e.target.value)} />
       </div>
       <div class="input-control">
         <label for="lastName">Last Name</label>
-        <input id="lastName" type="text" .value=${state.tester.lastName} @change=${(e)=>
-        actions.changeLastName(e.target.value)} />
+        <input id="lastName" type="text" .value=${state.tester.lastName} @change=${(e) =>
+      actions.changeLastName(e.target.value)} />
       </div>
       <div class="input-control">
         <label for="email">Email</label>
-        <input id="email" type="email" .value=${state.tester.email} @change=${(e)=>
-          actions.changeEmail(e.target.value)} />
+        <input id="email" type="email" .value=${state.tester.email} @change=${(e) =>
+    actions.changeEmail(e.target.value)} />
       </div>
       <div class="input-control">
         <label for="birthDate">Date of Birth</label>
-        <select @change=${(e) => actions.changeDobMonth(e.target.value)}>
+        <select @change=${(e)=> actions.changeDobMonth(e.target.value)}>
           <option>Month</option>
           ${cache(months())}
         </select>
-        <select @change=${(e) => actions.changeDobDay(e.target.value)}>
+        <select @change=${(e)=> actions.changeDobDay(e.target.value)}>
           <option>Day</option>
           ${cache(days())}
         </select>
-        <select @change=${(e) => actions.changeDobYear(e.target.value)}>
+        <select @change=${(e)=> actions.changeDobYear(e.target.value)}>
           <option>Year</option>
           ${cache(years())}
         </select>
       </div>
       <div class="text-time-selection">
         <div>
-          <input type="radio" name="text-time-selection" id="testNow" value="I'm ready to take my test now" />
+          <input type="radio" name="text-time-selection" id="testNow" value="testNow" />
           <label for="testNow">I'm ready to take my test now</label>
         </div>
         <div>
-          <input type="radio" name="text-time-selection" id="testLater" value="Let's schedule my test for later" />
+          <input type="radio" name="text-time-selection" id="testLater" value="testLater" />
           <label for="testLater">Let's schedule my test for later</label>
         </div>
       </div>
@@ -114,6 +115,7 @@ const view = (state, actions) => {
         <button type="submit">Submit</button>
       </div>
     </form>
+  </div>
   `;
 };
 
