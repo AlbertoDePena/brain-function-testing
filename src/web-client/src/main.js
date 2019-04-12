@@ -9,7 +9,7 @@ const update = flyd.stream();
 const actions = app.actions(update);
 const element = document.getElementById('bft-app');
 
-configureRouter(routeParams => actions.updateRoute(routeParams));
+configureRouter(actions.updateRoute);
 
 flyd
   .scan(P, app.initialState(), update)
