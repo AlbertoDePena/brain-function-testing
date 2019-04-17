@@ -49,11 +49,13 @@ const view = (state, actions) => {
       <p>Confirm:</p>
       <div class="confirm">
         <div>
-          <input id="instructionsRead" type="checkbox" @change=${(e) => actions.changeInstructionsRead(e.target.checked)} />
+          <input id="instructionsRead" type="checkbox" .checked=${state.instructionsRead} @change=${(e)=>
+          actions.changeInstructionsRead(e.target.checked)} />
           <label for="instructionsRead">I have read the above instructions</label>
         </div>
         <div>
-          <input id="usingComputer" type="checkbox" @change=${(e) => actions.changeUsingComputer(e.target.checked)} />
+          <input id="usingComputer" type="checkbox" .checked=${state.usingComputer} @change=${(e)=>
+          actions.changeUsingComputer(e.target.checked)} />
           <label for="usingComputer">I am using a desktop or laptop computer</label>
         </div>
       </div>

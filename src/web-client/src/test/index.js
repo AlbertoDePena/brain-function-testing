@@ -6,6 +6,7 @@ import { navigateTo } from '../core/router';
 
 const initialState = () => {
   return {
+    scheduleTest: false,
     tester: {
       firstName: '',
       lastName: '',
@@ -36,6 +37,9 @@ const actions = update => {
     },
     changeDobYear: dobYear => {
       update({ tester: PS({ dobYear }) });
+    },
+    takeTestNow: scheduleTest => {
+      update({ scheduleTest });
     },
     generate: tester => {
       navigateTo('confirm');
@@ -103,11 +107,11 @@ const view = (state, actions) => {
       </div>
       <div class="text-time-selection">
         <div>
-          <input type="radio" name="text-time-selection" id="testNow" value="testNow" />
+          <input type="radio" name="text-time-selection" id="testNow" value="testNow" @change=${() => actions.takeTestNow(true)} />
           <label for="testNow">I'm ready to take my test now</label>
         </div>
         <div>
-          <input type="radio" name="text-time-selection" id="testLater" value="testLater" />
+          <input type="radio" name="text-time-selection" id="testLater" value="testLater" @change=${() => actions.takeTestNow(false)} />
           <label for="testLater">Let's schedule my test for later</label>
         </div>
       </div>
