@@ -5,10 +5,10 @@ POST https://sync.cnsvs.com/sync.php
 Content-Type: application/x-www-form-urlencoded
 
 request=rtl
-&account=11224
-&username=brainfunctiontesting
-&password=BrainFT101!
-&subject_id=00004BFTAD05231989
+&account=
+&username=
+&password=
+&subject_id=
 &dob_year=1989
 &dob_month=May
 &dob_day=23
