@@ -12,15 +12,15 @@
  * @property {String} test_lang = Language to present the test in, defaults to english_us
  */
 
- /**
-  * @typedef {Object} Tester
-  * @property {String} firstName 
-  * @property {String} lastName 
-  * @property {String} email 
-  * @property {String} dobMonth
-  * @property {String} dobDay
-  * @property {String} dobYear
-  */
+/**
+ * @typedef {Object} Tester
+ * @property {String} firstName 
+ * @property {String} lastName 
+ * @property {String} email 
+ * @property {String} dobMonth
+ * @property {String} dobDay
+ * @property {String} dobYear
+ */
 
 /**
  * build payload
@@ -28,7 +28,18 @@
  * @returns {TestLinkRequest} test link request
  */
 function buildPayload(tester) {
-  let payload = { };
+  let payload = {
+    request: 'rtl',
+    account: '',
+    username: '',
+    password: '',
+    subject_id: '',
+    dob_year: tester.dobYear,
+    dob_month: tester.dobMonth,
+    dob_day: tester.dobDay,
+    test_config: '9',
+    test_lang: 'english_us'
+  };
 
   return payload;
 }

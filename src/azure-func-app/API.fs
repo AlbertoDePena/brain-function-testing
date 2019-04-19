@@ -2,10 +2,14 @@ namespace BFT.AzureFuncApp
 
 module private Testers =
     open System
+    open System.Text.RegularExpressions
     open Models
     open BFT.Extensions
     open Microsoft.Azure.Documents
     open Microsoft.Azure.Documents.Client
+
+    let EmailRegex = @".+@.+"
+    let DOBRegex = @"(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\/\d{2}\/\d{4}"
 
     let getClient : GetClient =
         fun options ->
@@ -23,7 +27,7 @@ module private Testers =
                 let collection = DocumentCollection(Id = options.CollectionId)
                 let options = RequestOptions(OfferThroughput = Nullable(1000))
 
-                collection.PartitionKey.Paths.Add("/subject_id")
+                collection.PartitionKey.Paths.Add("/email")
 
                 let! _ = client.CreateDatabaseIfNotExistsAsync(database) |> Async.AwaitTask
                 let! _ = client.CreateDocumentCollectionIfNotExistsAsync(databaseUri, collection, options) |> Async.AwaitTask
@@ -54,11 +58,18 @@ module private Testers =
             }
 
     let getTester : GetTester =
-        fun client (DatabaseId databaseId) (CollectionId collectionId) (SubjectId subjectId) ->
+        fun client (DatabaseId databaseId) (CollectionId collectionId) filter ->
             async {
-                if String.IsNullOrWhiteSpace(subjectId) then raise (ArgumentNullException("subjectId"))
+                let query =
+                    match filter with
+                    | EmailFilter (Email email) ->
+                        if String.IsNullOrWhiteSpace(email) then raise (ArgumentNullException("email"))
 
-                let query = sprintf "SELECT * FROM Tester WHERE Tester.subject_id = '%s'" subjectId
+                        sprintf "SELECT * FROM Tester WHERE Tester.email = '%s'" email
+                    | SubjectIdFilter (SubjectId subjectId) ->
+                        if String.IsNullOrWhiteSpace(subjectId) then raise (ArgumentNullException("subjectId"))
+
+                        sprintf "SELECT * FROM Tester WHERE Tester.subjectId = '%s'" subjectId
 
                 let! testers = 
                     client.CreateDocumentQuery<Tester>(
@@ -75,22 +86,14 @@ module private Testers =
 
                 let databaseId = (DatabaseId options.DatabaseId)
                 let collectionId = (CollectionId options.CollectionId)
-                let subjectId = (SubjectId testResults.subject_id)
+                let subjectId = (SubjectId testResults.subject_id) |> SubjectIdFilter
 
                 let! testerOption = getTester client databaseId collectionId subjectId
-
-                let create () =
-                    let newTester = {
-                        id = ""; first_name = ""; last_name = ""; email = ""; 
-                        subject_id = testResults.subject_id; test_results = [testResults]
-                    }
-
-                    createDocument client databaseId collectionId newTester
 
                 let replace existingTester =
                     let updatedTester = { 
                         existingTester with 
-                            test_results = existingTester.test_results @ [testResults] 
+                            testResults = existingTester.testResults @ [testResults] 
                     }
 
                     let documentId = (DocumentId existingTester.id)
@@ -99,7 +102,7 @@ module private Testers =
 
                 let! _ =
                     match testerOption with
-                    | None -> create ()
+                    | None -> invalidOp (sprintf "Tester with subject ID %s not found" testResults.subject_id)
                     | Some existingTester -> replace existingTester
 
                 return ()
@@ -108,18 +111,26 @@ module private Testers =
     let saveTester : SaveTester =
         fun createDocument replaceDocument getTester getClient options tester ->
             async {
+                if String.IsNullOrWhiteSpace(tester.firstName) then raise (ArgumentNullException("firstName"))
+                if String.IsNullOrWhiteSpace(tester.lastName) then raise (ArgumentNullException("lastName"))
+                if String.IsNullOrWhiteSpace(tester.email) then raise (ArgumentNullException("email"))
+                if String.IsNullOrWhiteSpace(tester.dob) then raise (ArgumentNullException("dob"))
+
+                if Regex.IsMatch(tester.email, EmailRegex) |> not then invalidOp "Email is not valid"
+                if Regex.IsMatch(tester.dob, DOBRegex) |> not then invalidOp "Date of birth is not valid. Expected format: Jan/03/1985"
+
                 use! client = getClient options
 
                 let databaseId = (DatabaseId options.DatabaseId)
                 let collectionId = (CollectionId options.CollectionId)
-                let subjectId = (SubjectId tester.subject_id)
+                let email = (Email tester.email) |> EmailFilter
 
-                let! testerOption = getTester client databaseId collectionId subjectId
+                let! testerOption = getTester client databaseId collectionId email
 
-                let create () =
+                let create () = // TODO - generate Subject ID
                     let newTester = { 
                         tester with 
-                            test_results = [] 
+                            testResults = [] 
                     }
 
                     createDocument client databaseId collectionId newTester
@@ -127,9 +138,9 @@ module private Testers =
                 let replace existingTester =
                     let updatedTester = { 
                         existingTester with 
-                            first_name = tester.first_name; 
-                            last_name = tester.last_name; 
-                            email = tester.email 
+                            firstName = tester.firstName; 
+                            lastName = tester.lastName; 
+                            dob = tester.dob 
                     }
 
                     let documentId = (DocumentId existingTester.id)

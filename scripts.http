@@ -1,1 +1,16 @@
 GET http://localhost:7071/api/get-tester-http-trigger?subject_id=123456789
+
+###
+POST https://sync.cnsvs.com/sync.php
+Content-Type: application/x-www-form-urlencoded
+
+request=rtl
+&account=11224
+&username=brainfunctiontesting
+&password=BrainFT101!
+&subject_id=00004BFTAD05231989
+&dob_year=1989
+&dob_month=May
+&dob_day=23
+&test_config=9
+&test_lang=english_us

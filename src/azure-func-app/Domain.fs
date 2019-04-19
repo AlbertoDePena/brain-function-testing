@@ -33,11 +33,12 @@ module Models =
     [<CLIMutable>]
     type Tester = {
         id : string
-        first_name : string
-        last_name : string
+        firstName : string
+        lastName : string
         email : string
-        subject_id : string
-        test_results : TestResults list
+        subjectId : string
+        dob: string
+        testResults : TestResults list
     }
 
     [<CLIMutable>]
@@ -58,13 +59,19 @@ module Models =
 
     type SubjectId = SubjectId of string
 
+    type Email = Email of string
+
     type DocumentId = DocumentId of string
+
+    type TesterFilter =
+        | EmailFilter of Email
+        | SubjectIdFilter of SubjectId
 
     type GetClient = 
         DatabaseOptions -> Async<DocumentClient>
 
     type GetTester = 
-        DocumentClient -> DatabaseId -> CollectionId -> SubjectId -> Async<Tester option>
+        DocumentClient -> DatabaseId -> CollectionId -> TesterFilter -> Async<Tester option>
 
     type CreateDocument = 
         DocumentClient -> DatabaseId -> CollectionId -> Tester -> Async<ResourceResponse<Document>>

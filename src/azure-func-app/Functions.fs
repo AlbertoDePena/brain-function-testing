@@ -102,18 +102,19 @@ module Functions =
     async {
       log.LogInformation("Getting tester data...")
 
-      let subjectId = req.Query.["subject_id"].ToString()
+      let email = req.Query.["email"].ToString()
 
-      if String.IsNullOrWhiteSpace(subjectId) then
-        return BadRequestObjectResult("subject_id query param is required") :> IActionResult
+      if String.IsNullOrWhiteSpace(email) then
+        return BadRequestObjectResult("email query param is required") :> IActionResult
       else
         let options = Settings.getDatabaseOptions()
+        let filter = (Email email) |> EmailFilter
 
-        let! testerOption = TesterAPI.getTester options (SubjectId subjectId)
+        let! testerOption = TesterAPI.getTester options filter
 
         return
           match testerOption with
-          | None -> NotFoundObjectResult(sprintf "Tester with subject ID '%s' not found" subjectId) :> IActionResult
+          | None -> NotFoundObjectResult(sprintf "Tester with email '%s' not found" email) :> IActionResult
           | Some tester -> OkObjectResult(tester) :> IActionResult
     } |> Async.RunSynchronously
 
