@@ -2,11 +2,10 @@
 
 open System
 open Microsoft.Azure.WebJobs
-open DurableFunctions.FSharp
 open System.Net.Http
 open Microsoft.Extensions.Logging
 open Microsoft.Azure.WebJobs.Extensions.Http
-open FSharp.Control.Tasks.ContextInsensitive
+open FSharp.Control.Tasks
 open Models
 open Microsoft.AspNetCore.Http
 open Microsoft.AspNetCore.Mvc
@@ -28,46 +27,37 @@ module Settings =
     CollectionId = "testers"
   }
 
-[<RequireQualifiedAccess>]
-module Activities =
-
-  let saveTestResults =
-
-      let run testResults =
-        let options = Settings.getDatabaseOptions ()
-
-        TesterAPI.saveTestResults options testResults |> Async.StartAsTask
-
-      Activity.defineTask "save-test-results-activity" run
-
-[<RequireQualifiedAccess>]
-module Orchestrators =
-
-  let processTestResults input = orchestrator {
-    let! _ = Activity.call Activities.saveTestResults input
-
-    return ()
-  }
-
 module Functions =
 
   [<FunctionName("save-test-results-activity")>]
   let SaveTestResultsActivity([<ActivityTrigger>] input) = 
-    Activities.saveTestResults.run input
+    async {
+      let options = Settings.getDatabaseOptions ()
+
+      let! (DocumentId documentId) = TesterAPI.saveTestResults options input
+
+      return documentId
+    } |> Async.StartAsTask
 
   [<FunctionName("process-test-results-orchestration")>]
   let ProcessTestResultsOrchestration ([<OrchestrationTrigger>] context: DurableOrchestrationContext) = 
-    Orchestrator.run (Orchestrators.processTestResults, context)
+    task {
+      let input = context.GetInput<TestResults>()
+
+      let! documentId = context.CallActivityAsync<string>("save-test-results-activity", input)
+
+      return documentId
+    }
 
   [<FunctionName("save-test-results-http-trigger")>]
   let SaveTestResultsHttpTriger 
     ([<HttpTrigger(AuthorizationLevel.Function, "post")>] req: HttpRequestMessage, 
      [<OrchestrationClient>] starter: DurableOrchestrationClient, 
      log: ILogger) =
-    task {
+    async {
       log.LogInformation("Posting test results...")
 
-      let! formData = req.Content.ReadAsFormDataAsync()
+      let! formData = req.Content.ReadAsFormDataAsync() |> Async.AwaitTask
 
       if isNull formData then invalidOp "test result payload is required (Content-Type = application/x-www-form-urlencoded)"
 
@@ -89,12 +79,12 @@ module Functions =
 
       if String.IsNullOrWhiteSpace(testResults.subject_id) then invalidOp "Test results must have a subject ID"
 
-      let! orchestrationId = starter.StartNewAsync ("process-test-results-orchestration", testResults)
+      let! orchestrationId = starter.StartNewAsync ("process-test-results-orchestration", testResults) |> Async.AwaitTask
 
       log.LogInformation(sprintf "Started orchestration with ID = '{%s}'." orchestrationId)
 
       return starter.CreateCheckStatusResponse(req, orchestrationId)
-    }
+    } |> Async.StartAsTask
 
   [<FunctionName("get-tester-http-trigger")>]
   let GetTesterHttpTriger 
@@ -116,7 +106,7 @@ module Functions =
           match testerOption with
           | None -> NotFoundObjectResult(sprintf "Tester with email '%s' not found" email) :> IActionResult
           | Some tester -> OkObjectResult(tester) :> IActionResult
-    } |> Async.RunSynchronously
+    } |> Async.StartAsTask
 
   [<FunctionName("save-tester-http-trigger")>]
   let SaveTesterHttpTriger 
@@ -132,7 +122,7 @@ module Functions =
 
       let options = Settings.getDatabaseOptions()
 
-      let! _ = TesterAPI.saveTester options tester
+      let! (DocumentId documentId) = TesterAPI.saveTester options tester
 
-      return NoContentResult()
-    } |> Async.RunSynchronously
+      return OkObjectResult(documentId)
+    } |> Async.StartAsTask
