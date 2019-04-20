@@ -38,6 +38,7 @@ module Models =
         email : string
         subjectId : string
         dob: string
+        testStatus : string
         testResults : TestResults list
     }
 
@@ -71,16 +72,16 @@ module Models =
         DatabaseOptions -> Async<DocumentClient>
 
     type GetTester = 
-        DocumentClient -> DatabaseId -> CollectionId -> TesterFilter -> Async<Tester option>
+        IDocumentClient -> DatabaseId -> CollectionId -> TesterFilter -> Async<Tester option>
 
     type CreateDocument = 
-        DocumentClient -> DatabaseId -> CollectionId -> Tester -> Async<ResourceResponse<Document>>
+        IDocumentClient -> DatabaseId -> CollectionId -> Tester -> Async<DocumentId>
 
     type ReplaceDocument = 
-        DocumentClient -> DatabaseId -> CollectionId -> DocumentId -> Tester -> Async<ResourceResponse<Document>>
+        IDocumentClient -> DatabaseId -> CollectionId -> DocumentId -> Tester -> Async<DocumentId>
 
     type SaveTestResults = 
-        CreateDocument -> ReplaceDocument -> GetTester -> GetClient -> DatabaseOptions -> TestResults -> Async<unit>
+        CreateDocument -> ReplaceDocument -> GetTester -> IDocumentClient -> DatabaseId -> CollectionId -> TestResults -> Async<unit>
 
     type SaveTester = 
-        CreateDocument -> ReplaceDocument -> GetTester -> GetClient -> DatabaseOptions -> Tester -> Async<unit>
+        CreateDocument -> ReplaceDocument -> GetTester -> IDocumentClient -> DatabaseId -> CollectionId -> Tester -> Async<unit>

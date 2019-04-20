@@ -1,6 +1,7 @@
 namespace BFT.AzureFuncApp
 
-module private Testers =
+[<RequireQualifiedAccess>]
+module Testers =
     open System
     open System.Text.RegularExpressions
     open Models
@@ -43,7 +44,7 @@ module private Testers =
                         UriFactory.CreateDocumentCollectionUri(databaseId, collectionId), document) 
                     |> Async.AwaitTask
 
-                return result
+                return (DocumentId result.Resource.Id)
             }
 
     let replaceDocument : ReplaceDocument =
@@ -54,7 +55,7 @@ module private Testers =
                         UriFactory.CreateDocumentUri(databaseId, collectionId, documentId), document) 
                     |> Async.AwaitTask
 
-                return result
+                return (DocumentId result.Resource.Id)
             }
 
     let getTester : GetTester =
@@ -80,12 +81,10 @@ module private Testers =
             }
 
     let saveTestResults : SaveTestResults =
-        fun createDocument replaceDocument getTester getClient options testResults ->
-            async {     
-                use! client = getClient options
-
-                let databaseId = (DatabaseId options.DatabaseId)
-                let collectionId = (CollectionId options.CollectionId)
+        fun createDocument replaceDocument getTester client databaseId collectionId testResults ->
+            async {  
+                if String.IsNullOrWhiteSpace(testResults.subject_id) then raise (ArgumentNullException("subject_id"))
+   
                 let subjectId = (SubjectId testResults.subject_id) |> SubjectIdFilter
 
                 let! testerOption = getTester client databaseId collectionId subjectId
@@ -109,7 +108,7 @@ module private Testers =
             }
 
     let saveTester : SaveTester =
-        fun createDocument replaceDocument getTester getClient options tester ->
+        fun createDocument replaceDocument getTester client databaseId collectionId tester ->
             async {
                 if String.IsNullOrWhiteSpace(tester.firstName) then raise (ArgumentNullException("firstName"))
                 if String.IsNullOrWhiteSpace(tester.lastName) then raise (ArgumentNullException("lastName"))
@@ -119,10 +118,6 @@ module private Testers =
                 if Regex.IsMatch(tester.email, EmailRegex) |> not then invalidOp "Email is not valid"
                 if Regex.IsMatch(tester.dob, DOBRegex) |> not then invalidOp "Date of birth is not valid. Expected format: Jan/03/1985"
 
-                use! client = getClient options
-
-                let databaseId = (DatabaseId options.DatabaseId)
-                let collectionId = (CollectionId options.CollectionId)
                 let email = (Email tester.email) |> EmailFilter
 
                 let! testerOption = getTester client databaseId collectionId email
@@ -158,25 +153,46 @@ module private Testers =
 [<RequireQualifiedAccess>]
 module TesterAPI =
     open Models
-    open Testers
    
     let getTester =
         fun options subjectId -> 
             async {
-                use! client = getClient options 
+                use! client = Testers.getClient options 
 
                 let databaseId = (DatabaseId options.DatabaseId)
                 let collectionId = (CollectionId options.CollectionId)
 
-                return! getTester client databaseId collectionId subjectId   
+                return! Testers.getTester client databaseId collectionId subjectId   
             }        
 
     let saveTestResults =
         fun options testResults -> 
-            saveTestResults createDocument replaceDocument Testers.getTester getClient options testResults    
+            async {
+                use! client = Testers.getClient options 
+
+                let databaseId = (DatabaseId options.DatabaseId)
+                let collectionId = (CollectionId options.CollectionId)
+
+                return! 
+                    Testers.saveTestResults 
+                    Testers.createDocument 
+                    Testers.replaceDocument 
+                    Testers.getTester client databaseId collectionId testResults  
+            }  
 
     let saveTester =
         fun options tester -> 
-            saveTester createDocument replaceDocument Testers.getTester getClient options tester                
+            async {
+                use! client = Testers.getClient options 
+
+                let databaseId = (DatabaseId options.DatabaseId)
+                let collectionId = (CollectionId options.CollectionId)
+
+                return! 
+                    Testers.saveTester 
+                    Testers.createDocument 
+                    Testers.replaceDocument 
+                    Testers.getTester client databaseId collectionId tester  
+            }              
 
     
