@@ -99,12 +99,12 @@ module Testers =
 
                     replaceDocument client databaseId collectionId documentId updatedTester
 
-                let! _ =
+                let! documentId =
                     match testerOption with
                     | None -> invalidOp (sprintf "Tester with subject ID %s not found" testResults.subject_id)
                     | Some existingTester -> replace existingTester
 
-                return ()
+                return documentId
             }
 
     let saveTester : SaveTester =
@@ -116,38 +116,30 @@ module Testers =
                 if String.IsNullOrWhiteSpace(tester.dob) then raise (ArgumentNullException("dob"))
 
                 if Regex.IsMatch(tester.email, EmailRegex) |> not then invalidOp "Email is not valid"
-                if Regex.IsMatch(tester.dob, DOBRegex) |> not then invalidOp "Date of birth is not valid. Expected format: Jan/03/1985"
+                if Regex.IsMatch(tester.dob, DOBRegex) |> not then invalidOp "Date of birth is not valid. Expected format: MMM/DD/YYYY"
 
                 let email = (Email tester.email) |> EmailFilter
 
                 let! testerOption = getTester client databaseId collectionId email
 
                 let create () = // TODO - generate Subject ID
-                    let newTester = { 
-                        tester with 
-                            testResults = [] 
-                    }
+                    let newTester = { tester with testResults = [] }
 
                     createDocument client databaseId collectionId newTester
 
                 let replace existingTester =
-                    let updatedTester = { 
-                        existingTester with 
-                            firstName = tester.firstName; 
-                            lastName = tester.lastName; 
-                            dob = tester.dob 
-                    }
+                    let updatedTester = { existingTester with firstName = tester.firstName; lastName = tester.lastName; dob = tester.dob }
 
                     let documentId = (DocumentId existingTester.id)
 
                     replaceDocument client databaseId collectionId documentId updatedTester
 
-                let! _ =
+                let! documentId =
                     match testerOption with
                     | None -> create ()
                     | Some existingTester -> replace existingTester
 
-                return ()
+                return documentId
             }          
 
 [<RequireQualifiedAccess>]
@@ -162,7 +154,9 @@ module TesterAPI =
                 let databaseId = (DatabaseId options.DatabaseId)
                 let collectionId = (CollectionId options.CollectionId)
 
-                return! Testers.getTester client databaseId collectionId subjectId   
+                return! 
+                    Testers.getTester 
+                    client databaseId collectionId subjectId   
             }        
 
     let saveTestResults =
@@ -177,7 +171,8 @@ module TesterAPI =
                     Testers.saveTestResults 
                     Testers.createDocument 
                     Testers.replaceDocument 
-                    Testers.getTester client databaseId collectionId testResults  
+                    Testers.getTester 
+                    client databaseId collectionId testResults  
             }  
 
     let saveTester =
@@ -192,7 +187,8 @@ module TesterAPI =
                     Testers.saveTester 
                     Testers.createDocument 
                     Testers.replaceDocument 
-                    Testers.getTester client databaseId collectionId tester  
+                    Testers.getTester 
+                    client databaseId collectionId tester  
             }              
 
     

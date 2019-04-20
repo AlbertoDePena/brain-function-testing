@@ -62,7 +62,7 @@ let saveTester tester =
         client 
         expectedDatabaseId 
         expectedCollectionId 
-        tester |> Async.RunSynchronously
+        tester |> Async.RunSynchronously |> ignore
 
 let saveTestResults testResults =
     let client = Substitute.For<IDocumentClient>()
@@ -73,7 +73,7 @@ let saveTestResults testResults =
         client
         expectedDatabaseId 
         expectedCollectionId 
-        testResults |> Async.RunSynchronously
+        testResults |> Async.RunSynchronously |> ignore
 
 [<Fact>]
 let ``Saving a tester without first name should fail`` () =

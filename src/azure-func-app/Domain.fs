@@ -81,7 +81,7 @@ module Models =
         IDocumentClient -> DatabaseId -> CollectionId -> DocumentId -> Tester -> Async<DocumentId>
 
     type SaveTestResults = 
-        CreateDocument -> ReplaceDocument -> GetTester -> IDocumentClient -> DatabaseId -> CollectionId -> TestResults -> Async<unit>
+        CreateDocument -> ReplaceDocument -> GetTester -> IDocumentClient -> DatabaseId -> CollectionId -> TestResults -> Async<DocumentId>
 
     type SaveTester = 
-        CreateDocument -> ReplaceDocument -> GetTester -> IDocumentClient -> DatabaseId -> CollectionId -> Tester -> Async<unit>
+        CreateDocument -> ReplaceDocument -> GetTester -> IDocumentClient -> DatabaseId -> CollectionId -> Tester -> Async<DocumentId>
