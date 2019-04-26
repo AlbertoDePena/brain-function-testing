@@ -2,14 +2,53 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Brain Function Testing</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Brain Function Testing</title>
+    <style>
+      .splash {
+        text-align: center;
+        margin: 10% 0 0;
+        box-sizing: border-box;
+      }      
+      .splash div {
+        text-shadow: rgba(0, 0, 0, 0.5) 0 0 15px;
+        text-transform: uppercase;
+        font-family: "Raleway", "HelveticaNeue", "Helvetica Neue", Helvetica, Arial,
+          sans-serif;
+      }      
+      .splash .splash-text {
+        font-size: 52px;
+        line-height: 52px;
+      }      
+      .splash .splash-loading {
+        font-size: 20px;
+        line-height: 20px;
+        padding-top: 20px;
+      }
+    </style>
 </head>
 
-<body>
-  <div id="bft-app"></div>
+<body aurelia-app="main">
+    <div class="splash">
+        <div class="splash-text">Brain Function Testing</div>
+        <div class="splash-loading">Loading...</div>
+    </div>
+    <!-- Object.entries polyfill (not available in IE) -->
+    <script type="text/javascript">
+      if (!Object.entries) {
+        Object.entries = function(obj) {
+          var ownProps = Object.keys(obj),
+            i = ownProps.length,
+            resArray = new Array(i); // preallocate the Array
+          while (i--) {
+            resArray[i] = [ownProps[i], obj[ownProps[i]]];
+          }      
+          return resArray;
+        };
+      }
+    </script>
 </body>
 
 </html>

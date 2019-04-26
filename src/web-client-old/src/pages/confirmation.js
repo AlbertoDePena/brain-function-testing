@@ -63,6 +63,6 @@ const view = (state, actions) => {
   `;
 };
 
-const confirm = { initialState, actions, view };
+const confirmation = { initialState, actions, view };
 
-export default confirm;
+export default confirmation;

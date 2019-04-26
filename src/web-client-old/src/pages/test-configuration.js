@@ -42,7 +42,7 @@ const actions = update => {
       update({ scheduleTest });
     },
     generate: tester => {
-      navigateTo('confirm');
+      navigateTo('confirmation');
     }
   };
 };
@@ -123,6 +123,6 @@ const view = (state, actions) => {
   `;
 };
 
-const test = { initialState, actions, view };
+const testConfiguration = { initialState, actions, view };
 
-export default test;
+export default testConfiguration;

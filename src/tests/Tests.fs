@@ -25,23 +25,24 @@ let dummyTester = {
     subjectId = "AEIOU1234567890"
     dob = "Jan/03/1990"
     testStatus = ""
+    scheduleDate = ""
     testResults = []
 }
 
 let dummyTestResults = {
-    cnsvs_id = "0987654321"
-    subject_id = "AEIOU1234567890"
-    account_id = "12345"
-    birth_date = "01/03/1990"
+    cnsvsId = "0987654321"
+    subjectId = "AEIOU1234567890"
+    accountId = "12345"
+    birthDate = "01/03/1990"
     gender = "Male"
-    test_date = "04/19/2019"
-    test_time = "30"
+    testDate = "04/19/2019"
+    testTime = "30"
     timezone = "CST"
-    gmt_test_date = "04/19/2019"
-    gmt_test_time = "CST"
+    gmtTestDate = "04/19/2019"
+    gmtTestTime = "CST"
     duration = "500"
     language = "english_us"
-    report_data = ""
+    reportData = ""
 }
 
 let getMockedTester : GetTester =
@@ -117,7 +118,7 @@ let ``Saving a tester with valid data should succeed`` () =
 
 [<Fact>]
 let ``Saving test results without subject ID should fail`` () =
-    let execute () = saveTestResults { dummyTestResults with subject_id = "" }
+    let execute () = saveTestResults { dummyTestResults with subjectId = "" }
 
     Assert.Throws<ArgumentNullException>(execute)  
 

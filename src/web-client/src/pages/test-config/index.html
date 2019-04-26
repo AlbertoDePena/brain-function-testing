@@ -1,0 +1,44 @@
+<template>
+  <div class="view">
+    <form submit.delegate="save()">
+      <div class="input-control">
+        <label for="firstName">First Name</label>
+        <input id="firstName" type="text" value.bind="tester.firstName" />
+      </div>
+      <div class="input-control">
+        <label for="lastName">Last Name</label>
+        <input id="lastName" type="text" value.bind="tester.lastName" />
+      </div>
+      <div class="input-control">
+        <label for="email">Email</label>
+        <input id="email" type="email" value.bind="tester.email" />
+      </div>
+      <div class="input-control">
+        <label for="birthDate">Date of Birth</label>
+        <select value.bind="tester.dobMonth">
+          <option>Month</option>
+          <option repeat.for="month of months" model.bind="month">${month}</option>
+        </select>
+        <select value.bind="tester.dobDay">
+          <option>Day</option>
+          <option repeat.for="day of days" model.bind="day">${day}</option>
+        </select>
+        <select value.bind="tester.dobYear">
+          <option>Year</option>
+          <option repeat.for="year of years" model.bind="year">${year}</option>
+        </select>
+      </div>
+      <div class="text-time-selection">
+        <div>
+          <input type="radio" name="text-time-selection" id="testNow" model.bind="false" checked.bind="scheduleTest" />
+          <label for="testNow">I'm ready to take my test now</label>
+        </div>
+        <div>
+          <input type="radio" name="text-time-selection" id="testLater" model.bind="true" checked.bind="scheduleTest" />
+          <label for="testLater">Let's schedule my test for later</label>
+        </div>
+      </div>
+      <button type="submit">Submit</button>
+    </form>
+  </div>
+</template>

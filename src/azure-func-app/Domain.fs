@@ -15,19 +15,19 @@ module Models =
 
     [<CLIMutable>]
     type TestResults = {
-        cnsvs_id : string
-        subject_id : string
-        account_id : string
-        birth_date : string
+        cnsvsId : string
+        subjectId : string
+        accountId : string
+        birthDate : string
         gender : string
-        test_date : string
-        test_time : string
+        testDate : string
+        testTime : string
         timezone : string
-        gmt_test_date : string
-        gmt_test_time : string       
+        gmtTestDate : string
+        gmtTestTime : string       
         duration : string
         language : string
-        report_data : string
+        reportData : string
     }
 
     [<CLIMutable>]
@@ -39,6 +39,7 @@ module Models =
         subjectId : string
         dob: string
         testStatus : string
+        scheduleDate: string
         testResults : TestResults list
     }
 

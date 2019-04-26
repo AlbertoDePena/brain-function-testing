@@ -1,16 +1,17 @@
-import flyd from 'flyd';
-import { render } from 'lit-html';
-import { P } from 'patchinko/explicit';
+import * as Bluebird from 'bluebird';
+import { PLATFORM } from 'aurelia-framework';
 
-import app from './app';
-import { configureRouter } from './core/router';
+Bluebird.config({ warnings: false, longStackTraces: false });
 
-const update = flyd.stream();
-const actions = app.actions(update);
-const element = document.getElementById('bft-app');
+export async function configure(aurelia) {
+  aurelia.use
+    .standardConfiguration()
+    .feature(PLATFORM.moduleName('converters/index'));
 
-configureRouter(actions.updateRoute);
+  if (DEV_MODE) {
+    aurelia.use.developmentLogging();
+  }
 
-flyd
-  .scan(P, app.initialState(), update)
-  .map(state => render(app.view(state, actions), element));
+  await aurelia.start();
+  await aurelia.setRoot(PLATFORM.moduleName('app'));
+}

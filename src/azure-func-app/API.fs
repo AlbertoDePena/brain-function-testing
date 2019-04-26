@@ -83,9 +83,9 @@ module Testers =
     let saveTestResults : SaveTestResults =
         fun createDocument replaceDocument getTester client databaseId collectionId testResults ->
             async {  
-                if String.IsNullOrWhiteSpace(testResults.subject_id) then raise (ArgumentNullException("subject_id"))
+                if String.IsNullOrWhiteSpace(testResults.subjectId) then raise (ArgumentNullException("subject_id"))
    
-                let subjectId = (SubjectId testResults.subject_id) |> SubjectIdFilter
+                let subjectId = (SubjectId testResults.subjectId) |> SubjectIdFilter
 
                 let! testerOption = getTester client databaseId collectionId subjectId
 
@@ -101,7 +101,7 @@ module Testers =
 
                 let! documentId =
                     match testerOption with
-                    | None -> invalidOp (sprintf "Tester with subject ID %s not found" testResults.subject_id)
+                    | None -> invalidOp (sprintf "Tester with subject ID %s not found" testResults.subjectId)
                     | Some existingTester -> replace existingTester
 
                 return documentId
