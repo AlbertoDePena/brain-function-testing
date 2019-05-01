@@ -1,9 +1,9 @@
 <template>
   <div class="view">
-    <form submit.delegate="login()">
+    <form submit.delegate="getTester(emailInput.value)">
       <div class="input-control">
         <label for="email">Email</label>
-        <input id="email" type="email" value.bind="email" />
+        <input id="email" type="text" ref="emailInput" />
       </div>
       <button type="submit">Next</button>
     </form>

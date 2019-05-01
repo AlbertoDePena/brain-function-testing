@@ -1,6 +1,6 @@
 <template>
   <div class="view">
-    <form submit.delegate="save()">
+    <form submit.delegate="saveTester()">
       <div class="input-control">
         <label for="firstName">First Name</label>
         <input id="firstName" type="text" value.bind="tester.firstName" />
@@ -11,7 +11,7 @@
       </div>
       <div class="input-control">
         <label for="email">Email</label>
-        <input id="email" type="email" value.bind="tester.email" />
+        <input id="email" type="email" value.bind="tester.email" readonly />
       </div>
       <div class="input-control">
         <label for="birthDate">Date of Birth</label>

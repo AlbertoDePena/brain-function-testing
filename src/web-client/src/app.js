@@ -9,7 +9,7 @@ export class AppViewModel {
     config.title = 'Brain Function Testing';
     config.addAuthorizeStep(AuthorizeStep);
     config.map([
-      { route: ['', 'login'], name: 'login', moduleId: PLATFORM.moduleName('pages/login/index') },
+      { route: ['', 'main'], name: 'main', moduleId: PLATFORM.moduleName('pages/main/index') },
       { route: 'test-config', name: 'test-config', moduleId: PLATFORM.moduleName('pages/test-config/index') },
       { route: 'confirmation', name: 'confirmation', moduleId: PLATFORM.moduleName('pages/confirmation/index') }
     ]);
