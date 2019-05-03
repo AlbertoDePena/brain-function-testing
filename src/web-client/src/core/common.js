@@ -12,22 +12,18 @@ const isPromise = obj => {
  * @returns {Object} object with error and result properties
  */
 const tryCatch = fn => {
-  if (typeof fn !== 'function' && !isPromise(fn)) {
+  if (typeof fn !== 'function' && !isPromise(fn))
     throw new Error('Argument must be a function or Promise');
-  }
 
   const saveFn = fn => {
     try {
       return { result: fn() };
-    } catch (err) {
-      return { error: err };
+    } catch (error) {
+      return { error };
     }
   };
 
-  const successFn = value => ({ result: value });
-  const errorFn = err => ({ error: err });
-
-  return isPromise(fn) ? fn.then(successFn, errorFn) : saveFn(fn);
+  return isPromise(fn) ? fn.then(result => ({ result }), error => ({ error })) : saveFn(fn);
 };
 
 
@@ -42,15 +38,15 @@ const getDays = () => {
   return ([...Array(31).keys()].map(day => {
     let item = day + 1;
     item = item >= 10 ? item : `0${item}`;
-    return item;
+    return item.toString();
   }));
 };
 
 const getYears = () => {
   return ([...Array(100).keys()].reverse().map(year => {
     let item = year + 1920;
-    return item;
+    return item.toString();
   }));
 };
 
-export { isPromise, tryCatch, getMonths, getDays, getYears };
+export { tryCatch, getMonths, getDays, getYears };

@@ -3,7 +3,7 @@
 const path = require('path');
 const Webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const CopyPlugin = require('copy-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 const { AureliaPlugin } = require('aurelia-webpack-plugin');
 
 const resolve = filePath => path.resolve(__dirname, filePath);
@@ -74,7 +74,7 @@ module.exports = (env, argv) => {
             new Webpack.DefinePlugin({ DEV_MODE: JSON.stringify(isDevMode) }),
             new Webpack.ProvidePlugin({ Promise: 'bluebird' }),
             new HtmlWebpackPlugin({ template: 'src/index.html' }),
-            new CopyPlugin([{ from: 'src/content/bft.png' }])
+            new CopyWebpackPlugin([{ from: 'src/content/bft.png' }])
         ]
     };
 };

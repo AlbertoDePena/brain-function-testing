@@ -12,6 +12,21 @@ module Async =
 module Models =
     open Microsoft.Azure.Documents
     open Microsoft.Azure.Documents.Client
+    open Newtonsoft.Json
+
+    [<CLIMutable>]
+    type TestLinkRequest = {
+        request: string
+        account: string
+        username: string
+        password: string
+        [<JsonProperty("subject_id")>] subjectId: string
+        [<JsonProperty("dob_year")>] dobYear: string
+        [<JsonProperty("dob_month")>] dobMonth: string
+        [<JsonProperty("dob_day")>] dobDay: string
+        [<JsonProperty("test_config")>] testConfig: string
+        [<JsonProperty("test_lang")>] testLang: string
+    }
 
     [<CLIMutable>]
     type TestResults = {
@@ -51,13 +66,21 @@ module Models =
         CollectionId : string
     }
 
-    type EndpointUrl = EndpointUrl of string
+    [<CLIMutable>]
+    type BftOptions = {
+        Account : string
+        Username : string
+        Password : string
+        EndpointUrl : string
+    }
 
-    type AccountKey = AccountKey of string
+    [<CLIMutable>]
+    type AppSettings = {
+        DB : DatabaseOptions
+        BFT : BftOptions
+    }
 
-    type DatabaseId = DatabaseId of string
-
-    type CollectionId = CollectionId of string
+    type TestLink = TestLink of string
 
     type SubjectId = SubjectId of string
 
@@ -73,16 +96,19 @@ module Models =
         DatabaseOptions -> Async<DocumentClient>
 
     type GetTester = 
-        IDocumentClient -> DatabaseId -> CollectionId -> TesterFilter -> Async<Tester option>
+        IDocumentClient -> DatabaseOptions -> TesterFilter -> Async<Tester option>
 
     type CreateDocument = 
-        IDocumentClient -> DatabaseId -> CollectionId -> Tester -> Async<DocumentId>
+        IDocumentClient -> DatabaseOptions -> Tester -> Async<DocumentId>
 
     type ReplaceDocument = 
-        IDocumentClient -> DatabaseId -> CollectionId -> DocumentId -> Tester -> Async<DocumentId>
+        IDocumentClient -> DatabaseOptions -> DocumentId -> Tester -> Async<DocumentId>
 
     type SaveTestResults = 
-        CreateDocument -> ReplaceDocument -> GetTester -> IDocumentClient -> DatabaseId -> CollectionId -> TestResults -> Async<DocumentId>
+        CreateDocument -> ReplaceDocument -> GetTester -> IDocumentClient -> DatabaseOptions -> TestResults -> Async<DocumentId>
 
     type SaveTester = 
-        CreateDocument -> ReplaceDocument -> GetTester -> IDocumentClient -> DatabaseId -> CollectionId -> Tester -> Async<DocumentId>
+        CreateDocument -> ReplaceDocument -> GetTester -> IDocumentClient -> DatabaseOptions -> Tester -> Async<DocumentId>
+
+    type GetTestLink =
+        GetTester -> IDocumentClient -> AppSettings -> Email -> Async<TestLink>        

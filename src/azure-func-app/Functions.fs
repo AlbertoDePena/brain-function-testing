@@ -14,17 +14,25 @@ open Newtonsoft.Json
 [<RequireQualifiedAccess>]
 module Settings =
 
-  let getAppSettings name =
+  let private getAppSettings name =
     let value = Environment.GetEnvironmentVariable(name)
     if String.IsNullOrWhiteSpace(value) then
       invalidOp (sprintf "App setting %s not found" name)
     else value
 
-  let getDatabaseOptions () = {
-    EndpointUrl = getAppSettings "DatabaseEndpointUrl"
-    AccountKey = getAppSettings "DatabaseAccountKey"
-    DatabaseId = "testers"
-    CollectionId = "testers"
+  let get () = {
+    DB = {
+      EndpointUrl = getAppSettings "DB.EndpointUrl"
+      AccountKey = getAppSettings "DB.AccountKey"
+      DatabaseId = "testers"
+      CollectionId = "testers"
+    }
+    BFT = {
+      Account = getAppSettings "BFT.Account"
+      Username = getAppSettings "BFT.Username"
+      Password = getAppSettings "BFT.Password"
+      EndpointUrl = getAppSettings "BFT.EndpointUrl"
+    }
   }
 
 module Functions =
@@ -32,9 +40,9 @@ module Functions =
   [<FunctionName("save-test-results-activity")>]
   let SaveTestResultsActivity([<ActivityTrigger>] input) = 
     async {
-      let options = Settings.getDatabaseOptions ()
+      let settings = Settings.get ()
 
-      let! (DocumentId documentId) = TesterAPI.saveTestResults options input
+      let! (DocumentId documentId) = TesterAPI.saveTestResults settings input
 
       return documentId
     } |> Async.StartAsTask
@@ -97,16 +105,34 @@ module Functions =
       if String.IsNullOrWhiteSpace(email) then
         return BadRequestObjectResult("email query param is required") :> IActionResult
       else
-        let options = Settings.getDatabaseOptions()
+        let settings = Settings.get()
         let filter = (Email email) |> EmailFilter
 
-        let! testerOption = TesterAPI.getTester options filter
+        let! testerOption = TesterAPI.getTester settings filter
 
         return
           match testerOption with
           | None -> NotFoundObjectResult(sprintf "Tester with email '%s' not found" email) :> IActionResult
           | Some tester -> OkObjectResult(tester) :> IActionResult
     } |> Async.StartAsTask
+
+  [<FunctionName("get-test-link-http-trigger")>]
+  let GetTestLinkHttpTriger 
+    ([<HttpTrigger(AuthorizationLevel.Function, "get")>] req: HttpRequest, log: ILogger) =
+    async {
+      log.LogInformation("Getting test link...")
+
+      let email = req.Query.["email"].ToString()
+
+      if String.IsNullOrWhiteSpace(email) then
+        return BadRequestObjectResult("email query param is required") :> IActionResult
+      else
+        let settings = Settings.get()
+        
+        let! (TestLink testLink) = TesterAPI.getTestLink settings (Email email)
+
+        return OkObjectResult(testLink) :> IActionResult
+    } |> Async.StartAsTask    
 
   [<FunctionName("save-tester-http-trigger")>]
   let SaveTesterHttpTriger 
@@ -120,9 +146,9 @@ module Functions =
 
       if box tester |> isNull then invalidOp "Tester payload is required"
 
-      let options = Settings.getDatabaseOptions()
+      let settings = Settings.get()
 
-      let! (DocumentId documentId) = TesterAPI.saveTester options tester
+      let! (DocumentId documentId) = TesterAPI.saveTester settings tester
 
       return OkObjectResult(documentId)
     } |> Async.StartAsTask

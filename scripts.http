@@ -2,6 +2,10 @@
 GET http://localhost:7071/api/get-tester-http-trigger?email=ardepena@gmail.com
 Content-Type: application/json
 
+### - Get Test Link
+GET http://localhost:7071/api/get-test-link-http-trigger?email=maganj@demo.com
+Content-Type: application/json
+
 ### - Post Tester
 POST http://localhost:7071/api/save-tester-http-trigger
 Content-Type: application/json

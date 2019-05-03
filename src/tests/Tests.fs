@@ -108,7 +108,7 @@ let ``Saving a tester without dob should fail`` () =
 
 [<Fact>]
 let ``Saving a tester with invalid dbo should fail`` () =
-    let execute () = saveTester { dummyTester with email = "blahblah" }
+    let execute () = saveTester { dummyTester with dob = "blahblah" }
 
     Assert.Throws<InvalidOperationException>(execute)   
 

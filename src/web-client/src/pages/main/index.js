@@ -25,12 +25,17 @@ export class MainViewModel {
 
     const { error, result : tester } = await tryCatch(this.api.getTester(email));
     if (error) {
-      if (error.statusCode == 404) {
-        setTesterState({ email });
-      } else {
+      if (error.statusCode === 0) {
+        notifyError('Failed to contact Brain Function Testing server. Please contact the system administrator.');
+        return;
+      } 
+
+      if (error.statusCode !== 404) {
         notifyError(error.response);
         return;
       }
+      
+      setTesterState({ email });
     } else {
       setTesterState(tester);
     }
