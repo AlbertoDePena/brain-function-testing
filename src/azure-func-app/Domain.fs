@@ -42,6 +42,7 @@ module Models =
         gmtTestTime : string       
         duration : string
         language : string
+        domainData : string
         reportData : string
     }
 
@@ -51,7 +52,6 @@ module Models =
         firstName : string
         lastName : string
         email : string
-        subjectId : string
         dob: string
         testStatus : string
         scheduleDate: string
@@ -59,56 +59,38 @@ module Models =
     }
 
     [<CLIMutable>]
-    type DatabaseOptions = {
-        EndpointUrl : string
-        AccountKey : string
-        DatabaseId : string
-        CollectionId : string
-    }
-
-    [<CLIMutable>]
-    type BftOptions = {
-        Account : string
-        Username : string
-        Password : string
-        EndpointUrl : string
-    }
-
-    [<CLIMutable>]
     type AppSettings = {
-        DB : DatabaseOptions
-        BFT : BftOptions
+        DbEndpointUrl : string
+        DbAccountKey : string
+        BftAccount : string
+        BftUsername : string
+        BftPassword : string
+        BftEndpointUrl : string
     }
 
     type TestLink = TestLink of string
-
-    type SubjectId = SubjectId of string
 
     type Email = Email of string
 
     type DocumentId = DocumentId of string
 
-    type TesterFilter =
-        | EmailFilter of Email
-        | SubjectIdFilter of SubjectId
-
     type GetClient = 
-        DatabaseOptions -> Async<DocumentClient>
+        AppSettings -> Async<DocumentClient>
 
     type GetTester = 
-        IDocumentClient -> DatabaseOptions -> TesterFilter -> Async<Tester option>
+        IDocumentClient -> Email -> Async<Tester option>
 
     type CreateDocument = 
-        IDocumentClient -> DatabaseOptions -> Tester -> Async<DocumentId>
+        IDocumentClient -> Tester -> Async<DocumentId>
 
     type ReplaceDocument = 
-        IDocumentClient -> DatabaseOptions -> DocumentId -> Tester -> Async<DocumentId>
+        IDocumentClient -> DocumentId -> Tester -> Async<DocumentId>
 
     type SaveTestResults = 
-        CreateDocument -> ReplaceDocument -> GetTester -> IDocumentClient -> DatabaseOptions -> TestResults -> Async<DocumentId>
+        CreateDocument -> ReplaceDocument -> GetTester -> IDocumentClient -> TestResults -> Async<DocumentId>
 
     type SaveTester = 
-        CreateDocument -> ReplaceDocument -> GetTester -> IDocumentClient -> DatabaseOptions -> Tester -> Async<DocumentId>
+        CreateDocument -> ReplaceDocument -> GetTester -> IDocumentClient -> Tester -> Async<DocumentId>
 
     type GetTestLink =
         GetTester -> IDocumentClient -> AppSettings -> Email -> Async<TestLink>        

@@ -21,18 +21,12 @@ module Settings =
     else value
 
   let get () = {
-    DB = {
-      EndpointUrl = getAppSettings "DB.EndpointUrl"
-      AccountKey = getAppSettings "DB.AccountKey"
-      DatabaseId = "testers"
-      CollectionId = "testers"
-    }
-    BFT = {
-      Account = getAppSettings "BFT.Account"
-      Username = getAppSettings "BFT.Username"
-      Password = getAppSettings "BFT.Password"
-      EndpointUrl = getAppSettings "BFT.EndpointUrl"
-    }
+    DbEndpointUrl = getAppSettings "DB.EndpointUrl"
+    DbAccountKey = getAppSettings "DB.AccountKey"
+    BftAccount = getAppSettings "BFT.Account"
+    BftUsername = getAppSettings "BFT.Username"
+    BftPassword = getAppSettings "BFT.Password"
+    BftEndpointUrl = getAppSettings "BFT.EndpointUrl"
   }
 
 module Functions =
@@ -82,6 +76,7 @@ module Functions =
           gender = formData.["gender"]
           duration = formData.["duration"]
           language = formData.["language"]
+          domainData = formData.["domain_data"]
           reportData = formData.["report_data"]
         }
 
@@ -106,9 +101,8 @@ module Functions =
         return BadRequestObjectResult("email query param is required") :> IActionResult
       else
         let settings = Settings.get()
-        let filter = (Email email) |> EmailFilter
 
-        let! testerOption = TesterAPI.getTester settings filter
+        let! testerOption = TesterAPI.getTester settings (Email email)
 
         return
           match testerOption with

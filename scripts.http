@@ -1,5 +1,5 @@
 ### - Get Tester
-GET http://localhost:7071/api/get-tester-http-trigger?email=ardepena@gmail.com
+GET http://localhost:7071/api/get-tester-http-trigger?email=maganj@demo.com
 Content-Type: application/json
 
 ### - Get Test Link
@@ -11,23 +11,26 @@ POST http://localhost:7071/api/save-tester-http-trigger
 Content-Type: application/json
 
 {
-    "firstName": "Alberto",
-    "lastName": "De Pena",
-    "email": "ardepena@gmail.com",
-    "dob": "May/23/1989"
+    "firstName": "Juan",
+    "lastName": "Magan",
+    "email": "maganj@demo.com",
+    "dob": "Dec/02/1985"
 }
 
-### - Generate Test Link
-POST https://sync.cnsvs.com/sync.php
+### - Post Teste Results
+POST http://localhost:7071/api/save-test-results-http-trigger
 Content-Type: application/x-www-form-urlencoded
 
-request=rtl
-&account=
-&username=
-&password=
-&subject_id=
-&dob_year=1989
-&dob_month=May
-&dob_day=23
-&test_config=9
-&test_lang=english_us
+cnsvs_id=12345
+&account_id=11224
+&test_date=2019-05-06
+&test_time=01:01:01
+&timezone=cst
+&gmt_test_date=2019-05-06
+&gmt_test_time=01:01:01
+&subject_id=maganj@demo.com
+&birth_date=1985-12-02
+&gender=male
+&duration=5000
+&language=english_us
+&domain_data=<data><name>Composite Memory</name><valid>Yes</valid><raw>87</raw><ss>73</ss><pr>4</pr></data>

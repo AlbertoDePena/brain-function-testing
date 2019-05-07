@@ -10,29 +10,20 @@ module Validation =
         if String.IsNullOrWhiteSpace(value) then invalidArg name (sprintf "%s is required" name)
         value.Trim()
 
-    let validateDbOptions (opts : DatabaseOptions) = { 
-            opts with 
-                EndpointUrl = validateProperty "endpointUrl" opts.EndpointUrl
-                AccountKey = validateProperty "accountKey" opts.AccountKey
-                DatabaseId = validateProperty "databaseId" opts.DatabaseId
-                CollectionId = validateProperty "collectionId" opts.CollectionId
-        }
-
-    let validateBftOptions (opts : BftOptions) = { 
-            opts with 
-                EndpointUrl = validateProperty "endpointUrl" opts.EndpointUrl
-                Account = validateProperty "account" opts.Account
-                Username = validateProperty "username" opts.Username
-                Password = validateProperty "password" opts.Password
+    let validateAppSettings (settings : AppSettings) = { 
+            settings with 
+                DbEndpointUrl = validateProperty "DB Endpoint URL" settings.DbEndpointUrl
+                DbAccountKey = validateProperty "DB Account Key" settings.DbAccountKey
+                BftEndpointUrl = validateProperty "BFT Endpoint URL" settings.BftEndpointUrl
+                BftAccount = validateProperty "BFT Account" settings.BftAccount
+                BftUsername = validateProperty "BFT Username" settings.BftUsername
+                BftPassword = validateProperty "BFT Password" settings.BftPassword
         }
 
     let validateEmail (Email email) =
         if Regex.IsMatch(email, @".+@.+") |> not then invalidOp "Email is not valid"       
 
         validateProperty "email" email |> Email
-
-    let validateSubjectId (SubjectId subjectId) =
-        validateProperty "subjectId" subjectId |> SubjectId      
 
     let validateTester (tester : Tester) =
         if Regex.IsMatch(tester.dob, @"(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\/\d{2}\/\d{4}") |> not then 
@@ -54,77 +45,75 @@ module Testers =
     open Microsoft.Azure.Documents
     open Microsoft.Azure.Documents.Client
 
+    let DatabaseId = "testers"
+
+    let CollectionId = "testers"
+
     let getClient : GetClient =
-        fun dbOptions ->
+        fun settings ->
             async {    
-                let dbOptions = Validation.validateDbOptions dbOptions
-
-                let client = new DocumentClient(Uri(dbOptions.EndpointUrl), dbOptions.AccountKey)
-
-                let database = Database(Id = dbOptions.DatabaseId)
-                let databaseUri = UriFactory.CreateDatabaseUri(dbOptions.DatabaseId)
-
-                let collection = DocumentCollection(Id = dbOptions.CollectionId)
-                let options = RequestOptions(OfferThroughput = Nullable(1000))
-
+                let settings = Validation.validateAppSettings settings
+                let client = new DocumentClient(Uri(settings.DbEndpointUrl), settings.DbAccountKey)
+                let collection = DocumentCollection(Id = CollectionId)
+                
                 collection.PartitionKey.Paths.Add("/email")
+                
+                let options = RequestOptions(OfferThroughput = Nullable(1000))
+                let databaseUri = UriFactory.CreateDatabaseUri(DatabaseId)
 
-                let! _ = client.CreateDatabaseIfNotExistsAsync(database) |> Async.AwaitTask
-                let! _ = client.CreateDocumentCollectionIfNotExistsAsync(databaseUri, collection, options) |> Async.AwaitTask
+                let! _ = 
+                    client.CreateDatabaseIfNotExistsAsync(Database(Id = DatabaseId)) 
+                    |> Async.AwaitTask
+                let! _ = 
+                    client.CreateDocumentCollectionIfNotExistsAsync(databaseUri, collection, options) 
+                    |> Async.AwaitTask
 
                 return client
             }
 
     let createDocument : CreateDocument =
-        fun client dbOptions document ->
+        fun client document ->
             async {
                 let! result =
                     client.CreateDocumentAsync(
-                        UriFactory.CreateDocumentCollectionUri(dbOptions.DatabaseId, dbOptions.CollectionId), document) 
+                        UriFactory.CreateDocumentCollectionUri(DatabaseId, CollectionId), document) 
                     |> Async.AwaitTask
 
                 return (DocumentId result.Resource.Id)
             }
 
     let replaceDocument : ReplaceDocument =
-        fun client dbOptions (DocumentId documentId) document ->
+        fun client (DocumentId documentId) document ->
             async {
                 let! result =
                     client.ReplaceDocumentAsync(
-                        UriFactory.CreateDocumentUri(dbOptions.DatabaseId, dbOptions.CollectionId, documentId), document) 
+                        UriFactory.CreateDocumentUri(DatabaseId, CollectionId, documentId), document) 
                     |> Async.AwaitTask
 
                 return (DocumentId result.Resource.Id)
             }
 
     let getTester : GetTester =
-        fun client dbOptions filter ->
+        fun client email ->
             async {
-                let query =
-                    match filter with
-                    | EmailFilter email ->
-                        let (Email email) = Validation.validateEmail email
-
-                        sprintf "SELECT * FROM Tester WHERE Tester.email = '%s'" email
-                    | SubjectIdFilter subjectId ->
-                        let (SubjectId subjectId) = Validation.validateSubjectId subjectId
-
-                        sprintf "SELECT * FROM Tester WHERE Tester.subjectId = '%s'" subjectId
-
-                let! testers = 
+                let query = 
+                    let (Email email) = Validation.validateEmail email
+                    sprintf "SELECT * FROM Tester WHERE Tester.email = '%s'" email 
+                
+                let! testers =
                     client.CreateDocumentQuery<Tester>(
-                        UriFactory.CreateDocumentCollectionUri(dbOptions.DatabaseId, dbOptions.CollectionId), query).ToListAsync() 
-                    |> Async.AwaitTask
+                        UriFactory.CreateDocumentCollectionUri(DatabaseId, CollectionId), query).ToListAsync() 
+                        |> Async.AwaitTask
 
                 return Seq.tryHead testers
             }
 
     let saveTestResults : SaveTestResults =
-        fun createDocument replaceDocument getTester client dbOptions testResults ->
+        fun createDocument replaceDocument getTester client testResults ->
             async {  
                 let! testerOption = 
-                    SubjectIdFilter (SubjectId testResults.subjectId) 
-                    |> getTester client dbOptions
+                    (Email testResults.subjectId) 
+                    |> getTester client
 
                 let replace existingTester =
                     let updatedTester = { 
@@ -134,7 +123,7 @@ module Testers =
 
                     let documentId = (DocumentId existingTester.id)
 
-                    replaceDocument client dbOptions documentId updatedTester
+                    replaceDocument client documentId updatedTester
 
                 let! documentId =
                     match testerOption with
@@ -145,25 +134,25 @@ module Testers =
             }
 
     let saveTester : SaveTester =
-        fun createDocument replaceDocument getTester client dbOptions tester ->
+        fun createDocument replaceDocument getTester client tester ->
             async {
                 let tester = Validation.validateTester tester
 
                 let! testerOption = 
-                    EmailFilter (Email tester.email)
-                    |> getTester client dbOptions
+                    (Email tester.email)
+                    |> getTester client
 
-                let create () = // TODO - generate Subject ID
+                let create () =
                     let newTester = { tester with testResults = [] }
 
-                    createDocument client dbOptions newTester
+                    createDocument client newTester
 
                 let replace existingTester =
                     let updatedTester = { existingTester with firstName = tester.firstName; lastName = tester.lastName; dob = tester.dob }
 
                     let documentId = (DocumentId existingTester.id)
 
-                    replaceDocument client dbOptions documentId updatedTester
+                    replaceDocument client documentId updatedTester
 
                 let! documentId =
                     match testerOption with
@@ -176,11 +165,11 @@ module Testers =
     let getTestLink : GetTestLink =
         fun getTester client settings (Email email) ->         
             async {
-                let bft = Validation.validateBftOptions settings.BFT
+                let settings = Validation.validateAppSettings settings
 
                 let! testerOption = 
-                    EmailFilter (Email email)
-                    |> getTester client settings.DB
+                    (Email email)
+                    |> getTester client
 
                 let testLink =
                     match testerOption with
@@ -194,10 +183,10 @@ module Testers =
 
                         let testLinkRequest = {
                             request = "rtl"
-                            account = bft.Account
-                            username = bft.Username
-                            password = bft.Password
-                            subjectId = tester.subjectId
+                            account = settings.BftAccount
+                            username = settings.BftUsername
+                            password = settings.BftPassword
+                            subjectId = tester.email
                             dobYear = year
                             dobMonth = month
                             dobDay = day
@@ -205,7 +194,7 @@ module Testers =
                             testLang = "english_us"
                         }
 
-                        TestLink bft.EndpointUrl
+                        TestLink settings.BftEndpointUrl
 
                 return testLink
             }
@@ -217,17 +206,15 @@ module TesterAPI =
     let getTester =
         fun settings filter -> 
             async {
-                use! client = Testers.getClient settings.DB 
+                use! client = Testers.getClient settings 
 
-                return! 
-                    Testers.getTester 
-                    client settings.DB filter   
+                return! Testers.getTester client filter   
             }  
 
     let getTestLink =
         fun settings email ->
             async {
-                use! client = Testers.getClient settings.DB 
+                use! client = Testers.getClient settings 
 
                 return!
                     Testers.getTestLink
@@ -238,27 +225,27 @@ module TesterAPI =
     let saveTestResults =
         fun settings testResults -> 
             async {
-                use! client = Testers.getClient settings.DB 
+                use! client = Testers.getClient settings 
 
                 return! 
                     Testers.saveTestResults 
                     Testers.createDocument 
                     Testers.replaceDocument 
                     Testers.getTester 
-                    client settings.DB testResults  
+                    client testResults  
             }  
 
     let saveTester =
         fun settings tester -> 
             async {
-                use! client = Testers.getClient settings.DB 
+                use! client = Testers.getClient settings 
 
                 return! 
                     Testers.saveTester 
                     Testers.createDocument 
                     Testers.replaceDocument 
                     Testers.getTester 
-                    client settings.DB tester  
+                    client tester  
             }   
 
                        

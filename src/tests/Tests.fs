@@ -9,20 +9,22 @@ open Microsoft.Azure.Documents
 
 let expectedDocumentId = Guid.NewGuid().ToString() |> DocumentId
 
-let expectedDatabaseId = DatabaseId "my-db"
-
-let expectedCollectionId = CollectionId "my-collection"
-
-let expectedSubjectId = SubjectId "AEIOU1234567890"
-
 let expectedEmail = Email "jmagan@demo.com"
+
+let dbOptions = {
+    DbAccountKey = ""
+    DbEndpointUrl = ""
+    BftAccount = ""
+    BftEndpointUrl = ""
+    BftUsername = ""
+    BftPassword = ""       
+}
 
 let dummyTester = {
     id = Guid.NewGuid().ToString()
     firstName = "Juan"
     lastName = "Magan"
     email = "jmagan@demo.com"
-    subjectId = "AEIOU1234567890"
     dob = "Jan/03/1990"
     testStatus = ""
     scheduleDate = ""
@@ -42,17 +44,18 @@ let dummyTestResults = {
     gmtTestTime = "CST"
     duration = "500"
     language = "english_us"
+    domainData = ""
     reportData = ""
 }
 
 let getMockedTester : GetTester =
-    fun _ _ _ _ -> Some dummyTester |> Async.singleton
+    fun _ _ -> Some dummyTester |> Async.singleton
 
 let mockCreateDocument : CreateDocument =
-    fun _ _ _ _ -> Async.singleton expectedDocumentId
+    fun _ _ -> Async.singleton expectedDocumentId
 
 let mockReplaceDocument : ReplaceDocument =
-    fun _ _ _ _ _ -> Async.singleton expectedDocumentId         
+    fun _ _ _ -> Async.singleton expectedDocumentId         
 
 let saveTester tester =
     let client = Substitute.For<IDocumentClient>()
@@ -61,8 +64,6 @@ let saveTester tester =
         mockReplaceDocument 
         getMockedTester 
         client 
-        expectedDatabaseId 
-        expectedCollectionId 
         tester |> Async.RunSynchronously |> ignore
 
 let saveTestResults testResults =
@@ -72,8 +73,6 @@ let saveTestResults testResults =
         mockReplaceDocument 
         getMockedTester                 
         client
-        expectedDatabaseId 
-        expectedCollectionId 
         testResults |> Async.RunSynchronously |> ignore
 
 [<Fact>]
