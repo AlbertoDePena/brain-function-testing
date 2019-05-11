@@ -33,7 +33,7 @@ let dummyTester = {
 
 let dummyTestResults = {
     cnsvsId = "0987654321"
-    subjectId = "AEIOU1234567890"
+    subjectId = "jmagan@demo.com"
     accountId = "12345"
     birthDate = "01/03/1990"
     gender = "Male"
@@ -79,37 +79,37 @@ let saveTestResults testResults =
 let ``Saving a tester without first name should fail`` () =
     let execute () = saveTester { dummyTester with firstName = "" }
 
-    Assert.Throws<ArgumentNullException>(execute)
+    Assert.Throws<ArgumentException>(execute)
 
 [<Fact>]
 let ``Saving a tester without last name should fail`` () =
     let execute () = saveTester { dummyTester with lastName = "" }
 
-    Assert.Throws<ArgumentNullException>(execute)  
+    Assert.Throws<ArgumentException>(execute)  
 
 [<Fact>]
 let ``Saving a tester without email should fail`` () =
     let execute () = saveTester { dummyTester with email = "" }
 
-    Assert.Throws<ArgumentNullException>(execute)    
+    Assert.Throws<ArgumentException>(execute)    
 
 [<Fact>]
 let ``Saving a tester with invalid email should fail`` () =
     let execute () = saveTester { dummyTester with email = "blahblah" }
 
-    Assert.Throws<InvalidOperationException>(execute)     
+    Assert.Throws<ArgumentException>(execute)     
 
 [<Fact>]
 let ``Saving a tester without dob should fail`` () =
     let execute () = saveTester { dummyTester with dob = "" }
 
-    Assert.Throws<ArgumentNullException>(execute)  
+    Assert.Throws<ArgumentException>(execute)  
 
 [<Fact>]
 let ``Saving a tester with invalid dbo should fail`` () =
     let execute () = saveTester { dummyTester with dob = "blahblah" }
 
-    Assert.Throws<InvalidOperationException>(execute)   
+    Assert.Throws<ArgumentException>(execute)   
 
 [<Fact>]
 let ``Saving a tester with valid data should succeed`` () =
@@ -119,7 +119,7 @@ let ``Saving a tester with valid data should succeed`` () =
 let ``Saving test results without subject ID should fail`` () =
     let execute () = saveTestResults { dummyTestResults with subjectId = "" }
 
-    Assert.Throws<ArgumentNullException>(execute)  
+    Assert.Throws<ArgumentException>(execute)  
 
 [<Fact>]
 let ``Saving test results with valid data should succeed`` () =

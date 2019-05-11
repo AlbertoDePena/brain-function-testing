@@ -1,4 +1,5 @@
 namespace BFT.AzureFuncApp
+open System.Collections.Generic
 
 [<RequireQualifiedAccess>]
 module Validation =
@@ -21,13 +22,13 @@ module Validation =
         }
 
     let validateEmail (Email email) =
-        if Regex.IsMatch(email, @".+@.+") |> not then invalidOp "Email is not valid"       
+        if Regex.IsMatch(email, @".+@.+") |> not then invalidArg "email" "Email is not valid"       
 
         validateProperty "email" email |> Email
 
     let validateTester (tester : Tester) =
         if Regex.IsMatch(tester.dob, @"(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\/\d{2}\/\d{4}") |> not then 
-            invalidOp "Date of birth is not valid. Expected format: MMM/DD/YYYY"      
+            invalidArg "dob" "Date of birth is not valid. Expected format: MMM/DD/YYYY"      
 
         {
             tester with
@@ -40,6 +41,7 @@ module Validation =
 [<RequireQualifiedAccess>]
 module Testers =
     open System
+    open System.Net.Http
     open Models
     open BFT.Extensions
     open Microsoft.Azure.Documents
@@ -143,6 +145,13 @@ module Testers =
                     |> getTester client
 
                 let create () =
+                    // TODO: generate subject ID
+                    // 00004BFTTR042582
+                    // Where 00004 is a sequential counter
+                    // BFT is a the character code letting us know which practice generated the patient
+                    // TR is first and last initial
+                    // 042582 is the DOB
+
                     let newTester = { tester with testResults = [] }
 
                     createDocument client newTester
@@ -165,37 +174,52 @@ module Testers =
     let getTestLink : GetTestLink =
         fun getTester client settings (Email email) ->         
             async {
-                let settings = Validation.validateAppSettings settings
-
-                let! testerOption = 
-                    (Email email)
-                    |> getTester client
-
-                let testLink =
-                    match testerOption with
-                    | None -> invalidOp (sprintf "Tester with email of %s not found" email)
-                    | Some tester ->
+                
+                let generateLink tester =
+                    async {
+                        let settings = Validation.validateAppSettings settings
 
                         let (month, day, year) =
                             match tester.dob.Split("/") with
                             | [|month; day; year|] -> (month, day, year)
                             | _ -> invalidOp (sprintf "Tester with email of %s does not have a valid DOB" email)
 
-                        let testLinkRequest = {
-                            request = "rtl"
-                            account = settings.BftAccount
-                            username = settings.BftUsername
-                            password = settings.BftPassword
-                            subjectId = tester.email
-                            dobYear = year
-                            dobMonth = month
-                            dobDay = day
-                            testConfig = "9"
-                            testLang = "english_us"
-                        }
+                        let payload = 
+                            [| 
+                                ("request", "rtl")
+                                ("account", settings.BftAccount)
+                                ("username", settings.BftUsername)
+                                ("password", settings.BftPassword)
+                                ("subject_id", tester.email)
+                                ("dob_year", year)
+                                ("dob_month", month)
+                                ("dob_day", day)
+                                ("test_config", "9")
+                                ("test_lang", "english_us")
+                            |] |> Map.ofArray
 
-                        TestLink settings.BftEndpointUrl
+                        use httpClient = new HttpClient()
 
+                        let! response = 
+                            httpClient.PostAsync(settings.BftEndpointUrl, new FormUrlEncodedContent(payload)) 
+                            |> Async.AwaitTask
+
+                        if not response.IsSuccessStatusCode then invalidOp response.ReasonPhrase
+
+                        let! data = response.Content.ReadAsStringAsync() |> Async.AwaitTask
+
+                        return TestLink data
+                    }
+
+                let! testerOption = 
+                    (Email email)
+                    |> getTester client
+
+                let! testLink =
+                    match testerOption with
+                    | None -> invalidOp (sprintf "Tester with email of %s not found" email)
+                    | Some tester -> generateLink tester
+                     
                 return testLink
             }
 

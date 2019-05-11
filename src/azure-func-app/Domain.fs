@@ -12,21 +12,6 @@ module Async =
 module Models =
     open Microsoft.Azure.Documents
     open Microsoft.Azure.Documents.Client
-    open Newtonsoft.Json
-
-    [<CLIMutable>]
-    type TestLinkRequest = {
-        request: string
-        account: string
-        username: string
-        password: string
-        [<JsonProperty("subject_id")>] subjectId: string
-        [<JsonProperty("dob_year")>] dobYear: string
-        [<JsonProperty("dob_month")>] dobMonth: string
-        [<JsonProperty("dob_day")>] dobDay: string
-        [<JsonProperty("test_config")>] testConfig: string
-        [<JsonProperty("test_lang")>] testLang: string
-    }
 
     [<CLIMutable>]
     type TestResults = {
