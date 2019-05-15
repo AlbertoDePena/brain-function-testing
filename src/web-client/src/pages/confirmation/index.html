@@ -33,5 +33,6 @@
         <label for="usingComputer">I am using a desktop or laptop computer</label>
       </div>
     </div>
+    <button show.bind="instructionsRead && usingComputer" click.delegate="launchTest()">Launch Test</button>
   </div>
 </template>

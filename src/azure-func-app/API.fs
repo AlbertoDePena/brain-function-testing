@@ -1,5 +1,7 @@
 namespace BFT.AzureFuncApp
 open System.Collections.Generic
+open System.Xml
+open Newtonsoft.Json
 
 [<RequireQualifiedAccess>]
 module Validation =
@@ -145,19 +147,14 @@ module Testers =
                     |> getTester client
 
                 let create () =
-                    // TODO: generate subject ID
-                    // 00004BFTTR042582
-                    // Where 00004 is a sequential counter
-                    // BFT is a the character code letting us know which practice generated the patient
-                    // TR is first and last initial
-                    // 042582 is the DOB
-
-                    let newTester = { tester with testResults = [] }
-
-                    createDocument client newTester
+                    createDocument client { tester with testResults = [] }
 
                 let replace existingTester =
-                    let updatedTester = { existingTester with firstName = tester.firstName; lastName = tester.lastName; dob = tester.dob }
+                    let updatedTester = { 
+                        existingTester with 
+                            firstName = tester.firstName; lastName = tester.lastName; dob = tester.dob; 
+                            testStatus = tester.testStatus 
+                    }
 
                     let documentId = (DocumentId existingTester.id)
 
@@ -208,7 +205,13 @@ module Testers =
 
                         let! data = response.Content.ReadAsStringAsync() |> Async.AwaitTask
 
-                        return TestLink data
+                        let xmlDoc = XmlDocument()
+
+                        xmlDoc.LoadXml(data)
+                        
+                        let link = JsonConvert.SerializeXmlNode(xmlDoc)
+
+                        return TestLink link
                     }
 
                 let! testerOption = 

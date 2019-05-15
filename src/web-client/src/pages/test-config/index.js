@@ -1,14 +1,14 @@
 import { Router } from 'aurelia-router';
 import { inject } from 'aurelia-framework';
 
-import { getDays, getMonths, getYears, tryCatch } from '../../core/common';
+import { getDays, getMonths, getYears } from '../../core/common';
 import { getState, setTesterState, setScheduleTestState } from '../../core/state';
 import { notifyError } from '../../core/notifications';
 import { Api } from '../../core/api';
 
 @inject(Router, Api)
 export class TestConfigViewModel {
-
+  
   constructor(router, api) {
     this.router = router;
     this.api = api;
@@ -20,11 +20,11 @@ export class TestConfigViewModel {
     this.years = getYears();
   }
 
-  attached() {
+  activate() {
     this.tester = getState().tester;
   }
 
-  async saveTester() {
+  saveTester() {
     if (!this.tester.email) {
       notifyError('Email is required');
       return;
@@ -49,18 +49,22 @@ export class TestConfigViewModel {
       notifyError('DOB Year is required');
       return;
     }
-    
-    const { error, result : testerId } = await tryCatch(this.api.saveTester(this.tester));
-    if (error) {
-      notifyError(error.response);
-      return;
+
+    const that = this;
+
+    function setState(testerId) {
+      that.tester.id = testerId;
+
+      setTesterState(that.tester);
+      setScheduleTestState(that.scheduleTest);
+
+      that.router.navigate('confirmation');
     }
 
-    this.tester.id = testerId;
+    function handleError(error) {
+      notifyError(error.response);
+    }
 
-    setTesterState(this.tester);
-    setScheduleTestState(this.scheduleTest);
-
-    this.router.navigate('confirmation');
+    that.api.saveTester(that.tester).then(setState).catch(handleError);
   }
 }

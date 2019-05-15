@@ -1,0 +1,15 @@
+<template>
+  <div class="view status">
+    <div show.bind="tester.testStatus === 'Scheduled'">
+      <p>Your test has been scheduled</p>
+      <p>Please check your email for a notification with details on your scheduled date</p>
+    </div>
+    <div show.bind="tester.testStatus === 'In Progress'">
+      <p>Your test is in progress</p>
+    </div>
+    <div show.bind="tester.testStatus === 'Completed'">
+      <p>Your test results were sent to your email</p>
+      <p>Thank you for using Brain Function Testing</p>
+    </div>
+  </div>
+</template>

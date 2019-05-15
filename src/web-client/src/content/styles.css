@@ -108,6 +108,17 @@ button {
   padding-bottom: 5px;
 }
 
+.status {
+  width: 600px;
+  margin: 0 auto;
+}
+
+.status p {
+  margin: 10px 0;
+  color: #535b8c; 
+  text-align: center;
+}
+
 main .view {
   -webkit-animation: fadein .5s; /* Safari, Chrome and Opera > 12.1 */
      -moz-animation: fadein .5s; /* Firefox < 16 */

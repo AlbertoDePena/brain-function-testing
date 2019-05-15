@@ -11,7 +11,8 @@ export class AppViewModel {
     config.map([
       { route: ['', 'main'], name: 'main', moduleId: PLATFORM.moduleName('pages/main/index') },
       { route: 'test-config', name: 'test-config', moduleId: PLATFORM.moduleName('pages/test-config/index') },
-      { route: 'confirmation', name: 'confirmation', moduleId: PLATFORM.moduleName('pages/confirmation/index') }
+      { route: 'confirmation', name: 'confirmation', moduleId: PLATFORM.moduleName('pages/confirmation/index') },
+      { route: 'status', name: 'status', moduleId: PLATFORM.moduleName('pages/status/index') }
     ]);
 
     this.router = router;

@@ -1,32 +1,3 @@
-const isPromise = obj => {
-  return (
-    !!obj &&
-    (typeof obj === 'object' || typeof obj === 'function') &&
-    typeof obj.then === 'function'
-  );
-};
-
-/**
- * Try / Catch function or promise.
- * @param {*} fn - function or promise
- * @returns {Object} object with error and result properties
- */
-const tryCatch = fn => {
-  if (typeof fn !== 'function' && !isPromise(fn))
-    throw new Error('Argument must be a function or Promise');
-
-  const saveFn = fn => {
-    try {
-      return { result: fn() };
-    } catch (error) {
-      return { error };
-    }
-  };
-
-  return isPromise(fn) ? fn.then(result => ({ result }), error => ({ error })) : saveFn(fn);
-};
-
-
 const getMonths = () => {
   return [
     'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
@@ -49,4 +20,4 @@ const getYears = () => {
   }));
 };
 
-export { tryCatch, getMonths, getDays, getYears };
+export { getMonths, getDays, getYears };
