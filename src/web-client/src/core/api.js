@@ -57,6 +57,7 @@ export class Api {
   saveTester(tester) {
     const { dobMonth, dobDay, dobYear } = tester;
     tester.dob = `${dobMonth}/${dobDay}/${dobYear}`;
-    return this.httpClient.post('save-tester-http-trigger', tester).then(result => result.response);
+    return this.httpClient.post('save-tester-http-trigger', tester)
+      .then(result => result.response);
   }
 }
