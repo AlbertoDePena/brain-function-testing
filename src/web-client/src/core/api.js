@@ -32,7 +32,7 @@ export class Api {
     */
   getTestLink(email, testConfig) {
     return this.httpClient.get(`get-test-link-http-trigger?email=${email}&config=${testConfig}`)
-      .then(result => result.response);
+      .then(result => JSON.parse(result.response));
   }
 
   /**

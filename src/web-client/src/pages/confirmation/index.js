@@ -25,9 +25,10 @@ export class ConfirmationViewModel {
 
     const that = this;
 
-    function launch(linkUrl) {
+    function launch(link) {
       that.testLaunched = true;
-      window.open(linkUrl, '_blank');
+      that.logger.info('Get Test Link', link);
+      window.open(link.URL, '_blank');
     }
 
     function handleError(error) {

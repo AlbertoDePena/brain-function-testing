@@ -213,9 +213,9 @@ module Testers =
                         
                         let linkResult = xmlDoc |> JsonConvert.SerializeXmlNode |> JsonConvert.DeserializeObject<LinkResult>
 
-                        if linkResult.remoteLink.statusCode <> "0" then sprintf "Failed to generate test link: %s" linkResult.remoteLink.message |> invalidOp 
+                        if linkResult.REMOTE_LINK.STATUS_CODE <> "0" then sprintf "Failed to generate test link: %s" linkResult.REMOTE_LINK.MESSAGE |> invalidOp 
 
-                        return TestLink linkResult.remoteLink.url
+                        return linkResult.REMOTE_LINK |> JsonConvert.SerializeObject |> TestLinkJson
                     }
 
                 let! testerOption = 

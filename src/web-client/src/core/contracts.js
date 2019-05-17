@@ -1,13 +1,8 @@
 /**
- * @typedef {Object} REMOTE_LINK
+ * @typedef {Object} TestLinkResult
  * @property {String} STATUS_CODE 
  * @property {String} MESSAGE
  * @property {String} URL
- */
-
- /**
- * @typedef {Object} TestLinkResult
- * @property {REMOTE_LINK} REMOTE_LINK 
  */
 
 /**

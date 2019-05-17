@@ -12,22 +12,17 @@ module Async =
 module Models =
     open Microsoft.Azure.Documents
     open Microsoft.Azure.Documents.Client
-    open Newtonsoft.Json
 
     [<CLIMutable>]
     type RemoteLink = {
-        [<JsonProperty(PropertyName = "STATUS_CODE")>] 
-        statusCode : string
-        [<JsonProperty(PropertyName = "MESSAGE")>] 
-        message : string
-        [<JsonProperty(PropertyName = "URL")>] 
-        url : string
+        STATUS_CODE : string
+        MESSAGE : string
+        URL : string
     }
 
     [<CLIMutable>]
     type LinkResult = {
-        [<JsonProperty(PropertyName = "REMOTE_LINK")>] 
-        remoteLink : RemoteLink
+        REMOTE_LINK : RemoteLink
     }
 
     [<CLIMutable>]
@@ -68,7 +63,7 @@ module Models =
         BftEndpointUrl : string
     }
 
-    type TestLink = TestLink of string
+    type TestLinkJson = TestLinkJson of string
 
     type TestConfig = TestConfig of string
 
@@ -95,4 +90,4 @@ module Models =
         CreateDocument -> ReplaceDocument -> GetTester -> IDocumentClient -> Tester -> Async<DocumentId>
 
     type GetTestLink =
-        GetTester -> IDocumentClient -> AppSettings -> Email -> TestConfig -> Async<TestLink>        
+        GetTester -> IDocumentClient -> AppSettings -> Email -> TestConfig -> Async<TestLinkJson>        

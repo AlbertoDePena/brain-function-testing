@@ -126,9 +126,9 @@ module Functions =
       else
         let settings = Settings.get()
         
-        let! (TestLink testLink) = TesterAPI.getTestLink settings (Email email) (TestConfig testConfig)
+        let! (TestLinkJson json) = TesterAPI.getTestLink settings (Email email) (TestConfig testConfig)
 
-        return OkObjectResult(testLink) :> IActionResult
+        return OkObjectResult(json) :> IActionResult
     } |> Async.StartAsTask    
 
   [<FunctionName("save-tester-http-trigger")>]
