@@ -2,6 +2,7 @@ namespace BFT.AzureFuncApp
 open System.Collections.Generic
 open System.Xml
 open Newtonsoft.Json
+open Newtonsoft.Json.Linq
 
 [<RequireQualifiedAccess>]
 module Validation =
@@ -209,9 +210,11 @@ module Testers =
 
                         xmlDoc.LoadXml(data)
                         
-                        let link = JsonConvert.SerializeXmlNode(xmlDoc)
+                        let linkResult = xmlDoc |> JsonConvert.SerializeXmlNode |> JsonConvert.DeserializeObject<LinkResult>
 
-                        return TestLink link
+                        if linkResult.remoteLink.statusCode <> "0" then sprintf "Failed to generate test link: %s" linkResult.remoteLink.message |> invalidOp 
+
+                        return TestLink linkResult.remoteLink.url
                     }
 
                 let! testerOption = 

@@ -1,24 +1,27 @@
 import { Redirect } from 'aurelia-router';
-
 import { getState } from '../core/state';
 
 export class AuthorizeStep {
 
-  run(navigationInstruction, next) {    
+  run(navigationInstruction, next) {
     const tester = getState().tester || {};
-    const isNavigatingToMain = navigationInstruction.config.name === 'main';
-    const isNavifatingToStatus = navigationInstruction.config.name === 'status';
+    const hasTestResults = (tester.testResults || []).length;
 
-    if (tester.email && isNavigatingToMain) {
-      return next.cancel();
+    const isMainNav = navigationInstruction.config.name === 'main';
+    const isConfirmationNav = navigationInstruction.config.name === 'confirmation';
+    const isStatusNav = navigationInstruction.config.name === 'status';
+
+    if (tester.email) {
+      if (!isStatusNav && hasTestResults) {
+        return next.cancel(new Redirect('status'));
+      }
+  
+      if (!isConfirmationNav && !hasTestResults) {
+        return next.cancel(new Redirect('confirmation'));
+      }
     }
-
-    if (!tester.email && !isNavigatingToMain) {
+    else if (!isMainNav) {
       return next.cancel(new Redirect('main'));
-    }
-
-    if (tester.testStatus && !isNavifatingToStatus) {
-      return next.cancel(new Redirect('status'));
     }
 
     return next();

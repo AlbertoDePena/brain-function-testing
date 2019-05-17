@@ -17,7 +17,7 @@ export class ConfirmationViewModel {
   }
 
   activate() {
-    this.tester = getState().tester;
+    this.tester = getState().tester || {};
   }
 
   launchTest() {
@@ -25,15 +25,9 @@ export class ConfirmationViewModel {
 
     const that = this;
 
-    function launch(result) {
-      if (result.REMOTE_LINK.STATUS_CODE != 0) {
-        notifyError('Failed to launch test. Please contact system administrator.');
-        notifyError(result.REMOTE_LINK.MESSAGE);
-        return;
-      }
-
+    function launch(linkUrl) {
       that.testLaunched = true;
-      window.open(result.REMOTE_LINK.URL, '_blank');
+      window.open(linkUrl, '_blank');
     }
 
     function handleError(error) {
@@ -42,7 +36,7 @@ export class ConfirmationViewModel {
     }
 
     function update() {
-      that.tester.testStatus = 'In Progress';
+      that.tester.testStatus = 'Incomplete';
       that.api.saveTester(that.tester)
         .then(() => that.logger.info('Test in progress...'))
         .catch(error => that.logger.error('Failed to update tester status', error));

@@ -1,4 +1,7 @@
+import { getUrlParameter } from './common';
+
 let state = {};
+
 
 /**
  * 
@@ -9,16 +12,18 @@ export function setTesterState(tester) {
 }
 
 /**
- * 
- * @param {Boolean} scheduleTest 
- */
-export function setScheduleTestState(scheduleTest) {
-  state = { ...state, scheduleTest };
-}
-
-/**
  * @returns {State} state
  */
 export function getState() {
+  const email = getUrlParameter('email');
+
+  if (!state.tester) {
+    return {};
+  }
+
+  if (state.tester.email !== email) {
+    return {};
+  }
+  
   return state;
 }

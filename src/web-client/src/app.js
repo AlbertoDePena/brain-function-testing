@@ -10,10 +10,11 @@ export class AppViewModel {
     config.addAuthorizeStep(AuthorizeStep);
     config.map([
       { route: ['', 'main'], name: 'main', moduleId: PLATFORM.moduleName('pages/main/index') },
-      { route: 'test-config', name: 'test-config', moduleId: PLATFORM.moduleName('pages/test-config/index') },
       { route: 'confirmation', name: 'confirmation', moduleId: PLATFORM.moduleName('pages/confirmation/index') },
-      { route: 'status', name: 'status', moduleId: PLATFORM.moduleName('pages/status/index') }
+      { route: 'status', name: 'status', moduleId: PLATFORM.moduleName('pages/status/index') },
+      { route: 'error', name: 'error', moduleId: PLATFORM.moduleName('pages/error/index') }
     ]);
+    config.fallbackRoute('error');
 
     this.router = router;
   }  

@@ -83,43 +83,47 @@ button {
   text-transform: uppercase;
 }
 
-.confirmation {
+.error-page {
+  text-align: center;
+}
+
+.confirmation-page {
   line-height: 26px;
   width: 600px;
   margin: 0 auto;
 }
 
-.confirmation > p {
+.confirmation-page > p {
   margin: 10px 0;
   color: #535b8c; 
   font-size: 18px;
   text-transform: uppercase;
 }
 
-.confirmation span {
+.confirmation-page span {
   font-weight: 700;
 }
 
-.confirmation .confirm {
+.confirmation-page .confirm {
   margin-top: 10px;
 }
 
-.confirmation .confirm div {
+.confirmation-page .confirm div {
   padding-bottom: 5px;
 }
 
-.status {
+.status-page {
   width: 600px;
   margin: 0 auto;
 }
 
-.status p {
+.status-page p {
   margin: 10px 0;
   color: #535b8c; 
   text-align: center;
 }
 
-main .view {
+main .page {
   -webkit-animation: fadein .5s; /* Safari, Chrome and Opera > 12.1 */
      -moz-animation: fadein .5s; /* Firefox < 16 */
       -ms-animation: fadein .5s; /* Internet Explorer */
