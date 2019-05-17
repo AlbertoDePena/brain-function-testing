@@ -77,7 +77,7 @@ export class AuthorizeStep {
           .catch(handleError);
 
       case 'confirmation':
-        if (!tester.email) {
+        if (!tester.id) {
           return next.cancel(new Redirect('main'));
         }
         if (hasTestResults) {
@@ -86,7 +86,7 @@ export class AuthorizeStep {
         return next();
 
       case 'status':
-        if (!tester.email) {
+        if (!tester.id) {
           return next.cancel(new Redirect('main'));
         }
         if (!hasTestResults) {
