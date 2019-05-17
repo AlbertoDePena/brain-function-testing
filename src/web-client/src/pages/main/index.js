@@ -1,7 +1,7 @@
-import { Router } from 'aurelia-router';
+import { Router, activationStrategy } from 'aurelia-router';
 import { inject } from 'aurelia-framework';
 
-import { getDays, getMonths, getYears, getUrlParameter } from '../../core/common';
+import { getDays, getMonths, getYears } from '../../core/common';
 import { setTesterState } from '../../core/state';
 import { notifyError } from '../../core/notifications';
 import { Api } from '../../core/api';
@@ -19,15 +19,17 @@ export class MainViewModel {
     this.years = getYears();
   }
 
-  activate() {
-    this.tester = {
-      firstName: getUrlParameter('fn'),
-      lastName: getUrlParameter('ln'),
-      email: getUrlParameter('email'),
-      testConfig: getUrlParameter('config')
-    };
+  determineActivationStrategy() {
+    return activationStrategy.replace;
+  }
 
-    if (!this.tester.email) {
+  activate(params) {
+    const email = params.email,
+      firstName = params.fn,
+      lastName = params.ln,
+      testConfig = params.config;
+
+    if (!email) {
       return setTimeout(() => {
         notifyError('Please provide email in query parameter');
       });
@@ -42,10 +44,9 @@ export class MainViewModel {
 
       if (hasTestResults) {
         that.router.navigate('status');
-        return;
+      } else {
+        that.router.navigate('confirmation');
       }
-
-      that.router.navigate('confirmation');
     }
 
     function handleError(error) {
@@ -61,20 +62,22 @@ export class MainViewModel {
         });
       }
 
-      if (!that.tester.firstName) {
+      if (!firstName) {
         return setTimeout(() => {
           notifyError('Please provide first name in query parameter');
         });
       }
 
-      if (!that.tester.lastName) {
+      if (!lastName) {
         return setTimeout(() => {
           notifyError('Please provide last name in query parameter');
         });
       }
+
+      that.tester = { firstName, lastName, email, testConfig };
     }
 
-    return this.api.getTester(this.tester.email).then(setState).catch(handleError);
+    return this.api.getTester(email).then(setState).catch(handleError);
   }
 
   saveTester() {

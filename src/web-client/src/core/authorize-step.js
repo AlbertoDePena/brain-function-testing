@@ -12,6 +12,7 @@ export class AuthorizeStep {
     const isStatusNav = navigationInstruction.config.name === 'status';
 
     if (tester.email) {
+
       if (!isStatusNav && hasTestResults) {
         return next.cancel(new Redirect('status'));
       }
