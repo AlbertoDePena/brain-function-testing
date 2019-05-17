@@ -117,13 +117,16 @@ module Functions =
       log.LogInformation("Getting test link...")
 
       let email = req.Query.["email"].ToString()
+      let testConfig = req.Query.["config"].ToString()
 
       if String.IsNullOrWhiteSpace(email) then
         return BadRequestObjectResult("email query param is required") :> IActionResult
+      elif String.IsNullOrWhiteSpace(testConfig) then
+        return BadRequestObjectResult("test configuration query param is required") :> IActionResult
       else
         let settings = Settings.get()
         
-        let! (TestLink testLink) = TesterAPI.getTestLink settings (Email email)
+        let! (TestLink testLink) = TesterAPI.getTestLink settings (Email email) (TestConfig testConfig)
 
         return OkObjectResult(testLink) :> IActionResult
     } |> Async.StartAsTask    

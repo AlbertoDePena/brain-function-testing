@@ -55,8 +55,6 @@ module Models =
         lastName : string
         email : string
         dob: string
-        testStatus : string
-        scheduleDate: string
         testResults : TestResults list
     }
 
@@ -71,6 +69,8 @@ module Models =
     }
 
     type TestLink = TestLink of string
+
+    type TestConfig = TestConfig of string
 
     type Email = Email of string
 
@@ -95,4 +95,4 @@ module Models =
         CreateDocument -> ReplaceDocument -> GetTester -> IDocumentClient -> Tester -> Async<DocumentId>
 
     type GetTestLink =
-        GetTester -> IDocumentClient -> AppSettings -> Email -> Async<TestLink>        
+        GetTester -> IDocumentClient -> AppSettings -> Email -> TestConfig -> Async<TestLink>        

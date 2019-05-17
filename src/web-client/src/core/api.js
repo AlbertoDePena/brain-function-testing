@@ -27,10 +27,11 @@ export class Api {
   /**
     * 
     * @param {String} email
+    * @param {String} testConfig
     * @returns {TestLinkResult} test link result
     */
-  getTestLink(email) {
-    return this.httpClient.get(`get-test-link-http-trigger?email=${email}`)
+  getTestLink(email, testConfig) {
+    return this.httpClient.get(`get-test-link-http-trigger?email=${email}&config=${testConfig}`)
       .then(result => result.response);
   }
 

@@ -2,7 +2,7 @@ import { Router, activationStrategy } from 'aurelia-router';
 import { inject } from 'aurelia-framework';
 
 import { getDays, getMonths, getYears } from '../../core/common';
-import { setTesterState } from '../../core/state';
+import { setTesterState, setTestConfigState } from '../../core/state';
 import { notifyError } from '../../core/notifications';
 import { Api } from '../../core/api';
 
@@ -27,11 +27,17 @@ export class MainViewModel {
     const email = params.email,
       firstName = params.fn,
       lastName = params.ln,
-      testConfig = params.config;
+      testConfig = params.config || '9';
 
     if (!email) {
       return setTimeout(() => {
         notifyError('Please provide email in query parameter');
+      });
+    }
+
+    if (!email.match(/.+@.+/)) {      
+      return setTimeout(() => {
+        notifyError('Email is invalid');
       });
     }
 
@@ -74,8 +80,10 @@ export class MainViewModel {
         });
       }
 
-      that.tester = { firstName, lastName, email, testConfig };
+      that.tester = { firstName, lastName, email };
     }
+
+    setTestConfigState(testConfig);
 
     return this.api.getTester(email).then(setState).catch(handleError);
   }

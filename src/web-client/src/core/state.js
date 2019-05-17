@@ -1,7 +1,4 @@
-import { getUrlParameter } from './common';
-
 let state = {};
-
 
 /**
  * 
@@ -12,18 +9,16 @@ export function setTesterState(tester) {
 }
 
 /**
+ * 
+ * @param {String} testConfig 
+ */
+export function setTestConfigState(testConfig) {
+  state = { ...state, testConfig };
+}
+
+/**
  * @returns {State} state
  */
 export function getState() {
-  const email = getUrlParameter('email');
-
-  if (!state.tester) {
-    return {};
-  }
-
-  if (state.tester.email !== email) {
-    return {};
-  }
-  
   return state;
 }

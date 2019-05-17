@@ -35,13 +35,8 @@ export class ConfirmationViewModel {
       notifyError('Failed to launch test. Please contact system administrator.');
     }
 
-    function update() {
-      that.tester.testStatus = 'Incomplete';
-      that.api.saveTester(that.tester)
-        .then(() => that.logger.info('Test in progress...'))
-        .catch(error => that.logger.error('Failed to update tester status', error));
-    }
+    const testConfig = getState().testConfig;
 
-    that.api.getTestLink(that.tester.email).then(launch).then(update).catch(handleError);
+    that.api.getTestLink(that.tester.email, testConfig).then(launch).catch(handleError);
   }
 }
