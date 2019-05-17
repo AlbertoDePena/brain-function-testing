@@ -83,8 +83,18 @@ button {
   text-transform: uppercase;
 }
 
-.error-page {
+.error-page h4 {
   text-align: center;
+  margin: 20px 0;
+}
+
+.error-page h5 {
+  margin: 10px 0;
+}
+
+.error-page > div {
+  width: 600px;
+  margin: 0 auto;
 }
 
 .confirmation-page {

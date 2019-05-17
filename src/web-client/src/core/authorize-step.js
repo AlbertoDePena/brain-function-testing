@@ -20,6 +20,11 @@ export class AuthorizeStep {
       tester = getState().tester || {},
       hasTestResults = (tester.testResults || []).length;
 
+    function redirectToErrorPage(message) {
+      notifyError(message);
+      return next.cancel(new Redirect('error'));
+    }
+
     function setState(tester) {
       setTesterState(tester);
 
@@ -34,25 +39,19 @@ export class AuthorizeStep {
 
     function handleError(error) {
       if (error.statusCode === 0) {
-        notifyError(
-          'Failed to contact Brain Function Testing server. Please contact system administrator.'
-        );
-        return next.cancel(new Redirect('error'));
+        return redirectToErrorPage('Failed to contact BFT server. Please contact system administrator.');
       }
 
       if (error.statusCode !== 404) {
-        notifyError(error.response);
-        return next.cancel(new Redirect('error'));
+        return redirectToErrorPage(error.response);
       }
 
       if (!firstName) {
-        notifyError('Please provide first name in query parameter');
-        return next.cancel(new Redirect('error'));
+        return redirectToErrorPage('Please provide first name in query parameter');
       }
 
       if (!lastName) {
-        notifyError('Please provide last name in query parameter');
-        return next.cancel(new Redirect('error'));
+        return redirectToErrorPage('Please provide last name in query parameter');
       }
 
       setTesterState({ email, firstName, lastName });
@@ -65,13 +64,11 @@ export class AuthorizeStep {
         setTestConfigState(testConfig);
 
         if (!email) {
-          notifyError('email is required in query param');
-          return next.cancel(new Redirect('error'));
+          return redirectToErrorPage('email is required in query param');
         }
 
         if (!email.match(/.+@.+/)) {
-          notifyError('Email is invalid');
-          return next.cancel(new Redirect('error'));
+          return redirectToErrorPage('Email is invalid');
         }
 
         return this.api
