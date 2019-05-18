@@ -3,8 +3,8 @@
 const path = require('path');
 const Webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
 const { AureliaPlugin } = require('aurelia-webpack-plugin');
+const EnvConfig = require('./env.config');
 
 const resolve = filePath => path.resolve(__dirname, filePath);
 
@@ -71,10 +71,14 @@ module.exports = (env, argv) => {
         },
         plugins: [
             new AureliaPlugin({ features: { svg: false } }),
-            new Webpack.DefinePlugin({ DEV_MODE: JSON.stringify(isDevMode) }),
+            new Webpack.DefinePlugin({ 
+              DEV_MODE: JSON.stringify(isDevMode), 
+              GET_TEST_LINK_URL: JSON.stringify(EnvConfig.Development.GET_TEST_LINK_URL),
+              GET_TESTER_URL: JSON.stringify(EnvConfig.Development.GET_TESTER_URL) ,
+              SAVE_TESTER_URL: JSON.stringify(EnvConfig.Development.SAVE_TESTER_URL) 
+            }),
             new Webpack.ProvidePlugin({ Promise: 'bluebird' }),
-            new HtmlWebpackPlugin({ template: 'src/index.html' }),
-            new CopyWebpackPlugin([{ from: 'src/content/bft.png' }])
+            new HtmlWebpackPlugin({ template: 'src/index.html' })
         ]
     };
 };

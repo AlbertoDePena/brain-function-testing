@@ -6,7 +6,6 @@ export class Api {
   
   constructor(httpClient) {
     this.httpClient = httpClient.configure(opts => {
-      opts.withBaseUrl('http://localhost:7071/api/');
       opts.withInterceptor({
         request(message) {
           return message;
@@ -31,7 +30,7 @@ export class Api {
     * @returns {TestLinkResult} test link result
     */
   getTestLink(email, testConfig) {
-    return this.httpClient.get(`get-test-link-http-trigger?email=${email}&config=${testConfig}`)
+    return this.httpClient.get(`${GET_TEST_LINK_URL}&email=${email}&config=${testConfig}`)
       .then(result => JSON.parse(result.response));
   }
 
@@ -41,7 +40,7 @@ export class Api {
    * @returns {Tester} tester
    */
   getTester(email) {
-    return this.httpClient.get(`get-tester-http-trigger?email=${email}`)
+    return this.httpClient.get(`${GET_TESTER_URL}&email=${email}`)
       .then(result => JSON.parse(result.response))
       .then(tester => {
         const [dobMonth, dobDay, dobYear] = tester.dob.split('/');
@@ -57,7 +56,7 @@ export class Api {
   saveTester(tester) {
     const { dobMonth, dobDay, dobYear } = tester;
     tester.dob = `${dobMonth}/${dobDay}/${dobYear}`;
-    return this.httpClient.post('save-tester-http-trigger', tester)
+    return this.httpClient.post(`${SAVE_TESTER_URL}`, tester)
       .then(result => result.response);
   }
 }

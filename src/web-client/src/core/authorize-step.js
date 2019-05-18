@@ -20,9 +20,9 @@ export class AuthorizeStep {
       tester = getState().tester || {},
       hasTestResults = (tester.testResults || []).length;
 
-    function redirectToErrorPage(message) {
+    function redirectToDocumentationPage(message) {
       notifyError(message);
-      return next.cancel(new Redirect('error'));
+      return next.cancel(new Redirect('documentation'));
     }
 
     function setState(tester) {
@@ -39,19 +39,19 @@ export class AuthorizeStep {
 
     function handleError(error) {
       if (error.statusCode === 0) {
-        return redirectToErrorPage('Failed to contact BFT server. Please contact system administrator.');
+        return redirectToDocumentationPage('Failed to contact BFT server. Please contact system administrator.');
       }
 
       if (error.statusCode !== 404) {
-        return redirectToErrorPage(error.response);
+        return redirectToDocumentationPage(error.response);
       }
 
       if (!firstName) {
-        return redirectToErrorPage('Please provide first name in query parameter');
+        return redirectToDocumentationPage('Please provide first name in query parameter');
       }
 
       if (!lastName) {
-        return redirectToErrorPage('Please provide last name in query parameter');
+        return redirectToDocumentationPage('Please provide last name in query parameter');
       }
 
       setTesterState({ email, firstName, lastName });
@@ -64,11 +64,11 @@ export class AuthorizeStep {
         setTestConfigState(testConfig);
 
         if (!email) {
-          return redirectToErrorPage('email is required in query param');
+          return redirectToDocumentationPage('email is required in query param');
         }
 
         if (!email.match(/.+@.+/)) {
-          return redirectToErrorPage('Email is invalid');
+          return redirectToDocumentationPage('Email is invalid');
         }
 
         return this.api
@@ -94,7 +94,7 @@ export class AuthorizeStep {
         }
         return next();
 
-      case 'error':
+      case 'documentation':
         return next();
     }
   }

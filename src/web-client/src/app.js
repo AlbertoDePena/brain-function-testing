@@ -9,12 +9,12 @@ export class AppViewModel {
     config.title = 'Brain Function Testing';
     config.addAuthorizeStep(AuthorizeStep);
     config.map([
-      { route: ['', 'main'], name: 'main', moduleId: PLATFORM.moduleName('pages/main/index') },
-      { route: 'confirmation', name: 'confirmation', moduleId: PLATFORM.moduleName('pages/confirmation/index') },
-      { route: 'status', name: 'status', moduleId: PLATFORM.moduleName('pages/status/index') },
-      { route: 'error', name: 'error', moduleId: PLATFORM.moduleName('pages/error/index') }
+      { route: ['', 'main'], name: 'main', moduleId: PLATFORM.moduleName('pages/main/index'), title: 'Main' },
+      { route: 'confirmation', name: 'confirmation', moduleId: PLATFORM.moduleName('pages/confirmation/index'), title: 'Confirmation' },
+      { route: 'status', name: 'status', moduleId: PLATFORM.moduleName('pages/status/index'), title: 'Status' },
+      { route: 'documentation', name: 'documentation', moduleId: PLATFORM.moduleName('pages/documentation/index'), title: 'Documentation' }
     ]);
-    config.fallbackRoute('error');
+    config.fallbackRoute('documentation');
 
     this.router = router;
   }  

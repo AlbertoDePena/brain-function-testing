@@ -83,16 +83,11 @@ button {
   text-transform: uppercase;
 }
 
-.error-page h4 {
-  text-align: center;
+.documentation-page h4 {
   margin: 20px 0;
 }
 
-.error-page h5 {
-  margin: 10px 0;
-}
-
-.error-page > div {
+.documentation-page > div {
   width: 600px;
   margin: 0 auto;
 }
