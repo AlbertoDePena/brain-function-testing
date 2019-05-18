@@ -6,7 +6,8 @@ Bluebird.config({ warnings: false, longStackTraces: false });
 export async function configure(aurelia) {
   aurelia.use
     .standardConfiguration()
-    .developmentLogging();
+    .developmentLogging()
+    .feature(PLATFORM.moduleName('custom-elements/index'));
 
   await aurelia.start();
   await aurelia.setRoot(PLATFORM.moduleName('app'));
