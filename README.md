@@ -35,3 +35,7 @@ Total = **$93.94/month** x 2 (development and production) = **$187.88/month**
 #### Multiple Region Write 
 
 Total = **$152.34/month** x 2 (development and production) = **$304.68/month** 
+
+#### Accumulated Hours (as of 5/20/2019)
+
+40.45
