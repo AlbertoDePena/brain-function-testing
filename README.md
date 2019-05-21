@@ -38,4 +38,4 @@ Total = **$152.34/month** x 2 (development and production) = **$304.68/month**
 
 #### Accumulated Development Hours (as of 5/20/2019)
 
-40.45
+43.15
