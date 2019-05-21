@@ -1,5 +1,10 @@
 <template>
   <div class="page confirmation-page">
+    <p show.bind="!isCurrentSession">
+        Oops! It looks like you may have closed the test window or your internet connection was disrupted. 
+        In order to ensure that we get accurate test results, all sections of the test need to be completed at the same time. 
+        So, you will need to start your test from the beginning.
+    </p>
     <p>Before starting your test, read the instructions below:</p>
     <ul>
       <li>

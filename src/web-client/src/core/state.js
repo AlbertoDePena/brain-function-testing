@@ -17,6 +17,14 @@ export function setTestConfigState(testConfig) {
 }
 
 /**
+ * 
+ * @param {Boolean} isCurrentSession 
+ */
+export function setIsCurrentSession(isCurrentSession) {
+  state = { ...state, isCurrentSession };
+}
+
+/**
  * @returns {State} state
  */
 export function getState() {

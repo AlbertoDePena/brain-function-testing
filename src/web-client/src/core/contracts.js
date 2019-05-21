@@ -23,4 +23,5 @@
  * @typedef {Object} State
  * @property {Tester} tester
  * @property {String} testConfig
+ * @property {Boolean} isCurrentSession
  */

@@ -88,17 +88,17 @@ button {
 }
 
 .documentation-page > div {
-  width: 600px;
+  max-width: 600px;
   margin: 0 auto;
 }
 
 .confirmation-page {
   line-height: 26px;
-  width: 600px;
+  max-width: 600px;
   margin: 0 auto;
 }
 
-.confirmation-page > p {
+.confirmation-page p:nth-child(2) {
   margin: 10px 0;
   color: #535b8c; 
   font-size: 18px;
@@ -118,7 +118,7 @@ button {
 }
 
 .status-page {
-  width: 600px;
+  max-width: 600px;
   margin: 0 auto;
 }
 
@@ -129,6 +129,7 @@ button {
 }
 
 main .page {
+  padding: 0 20px;
   -webkit-animation: fadein .5s; /* Safari, Chrome and Opera > 12.1 */
      -moz-animation: fadein .5s; /* Firefox < 16 */
       -ms-animation: fadein .5s; /* Internet Explorer */

@@ -26,8 +26,6 @@ let dummyTester = {
     lastName = "Magan"
     email = "jmagan@demo.com"
     dob = "Jan/03/1990"
-    testStatus = ""
-    scheduleDate = ""
     testResults = []
 }
 

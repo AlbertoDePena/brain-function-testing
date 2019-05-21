@@ -2,7 +2,7 @@ import { Router, activationStrategy } from 'aurelia-router';
 import { inject } from 'aurelia-framework';
 
 import { getDays, getMonths, getYears } from '../../core/common';
-import { getState, setTesterState } from '../../core/state';
+import { getState, setTesterState, setIsCurrentSession } from '../../core/state';
 import { notifyError } from '../../core/notifications';
 import { Api } from '../../core/api';
 
@@ -62,6 +62,7 @@ export class MainViewModel {
     function setState(testerId) {
       that.tester.id = testerId;
       setTesterState(that.tester);
+      setIsCurrentSession(true);
       that.router.navigate('confirmation');
     }
 

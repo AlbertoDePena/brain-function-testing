@@ -13,11 +13,14 @@ export class ConfirmationViewModel {
     this.instructionsRead = false;
     this.usingComputer = false;
     this.testLaunched = false;
+    this.isCurrentSession = false;
     this.tester = {};
   }
 
   activate() {
-    this.tester = getState().tester || {};
+    const state = getState();
+    this.tester = state.tester || {};
+    this.isCurrentSession = state.isCurrentSession || false;
   }
 
   launchTest() {

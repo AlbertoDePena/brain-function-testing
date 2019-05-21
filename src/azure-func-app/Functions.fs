@@ -5,7 +5,6 @@ open Microsoft.Azure.WebJobs
 open System.Net.Http
 open Microsoft.Extensions.Logging
 open Microsoft.Azure.WebJobs.Extensions.Http
-open FSharp.Control.Tasks
 open Models
 open Microsoft.AspNetCore.Http
 open Microsoft.AspNetCore.Mvc
@@ -31,31 +30,9 @@ module Settings =
 
 module Functions =
 
-  [<FunctionName("save-test-results-activity")>]
-  let SaveTestResultsActivity([<ActivityTrigger>] input) = 
-    async {
-      let settings = Settings.get ()
-
-      let! (DocumentId documentId) = TesterAPI.saveTestResults settings input
-
-      return documentId
-    } |> Async.StartAsTask
-
-  [<FunctionName("process-test-results-orchestration")>]
-  let ProcessTestResultsOrchestration ([<OrchestrationTrigger>] context: DurableOrchestrationContext) = 
-    task {
-      let input = context.GetInput<TestResults>()
-
-      let! documentId = context.CallActivityAsync<string>("save-test-results-activity", input)
-
-      return documentId
-    }
-
   [<FunctionName("save-test-results-http-trigger")>]
   let SaveTestResultsHttpTriger 
-    ([<HttpTrigger(AuthorizationLevel.Function, "post")>] req: HttpRequestMessage, 
-     [<OrchestrationClient>] starter: DurableOrchestrationClient, 
-     log: ILogger) =
+    ([<HttpTrigger(AuthorizationLevel.Function, "post")>] req: HttpRequestMessage, log: ILogger) =
     async {
       log.LogInformation("Posting test results...")
 
@@ -82,11 +59,11 @@ module Functions =
 
       if String.IsNullOrWhiteSpace(testResults.subjectId) then invalidOp "Test results must have a subject ID"
 
-      let! orchestrationId = starter.StartNewAsync ("process-test-results-orchestration", testResults) |> Async.AwaitTask
+      let settings = Settings.get ()
 
-      log.LogInformation(sprintf "Started orchestration with ID = '{%s}'." orchestrationId)
+      let! (DocumentId documentId) = TesterAPI.saveTestResults settings testResults
 
-      return starter.CreateCheckStatusResponse(req, orchestrationId)
+      return OkObjectResult(documentId)
     } |> Async.StartAsTask
 
   [<FunctionName("get-tester-http-trigger")>]
