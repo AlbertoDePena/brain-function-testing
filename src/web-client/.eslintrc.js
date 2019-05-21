@@ -4,6 +4,9 @@ module.exports = {
   },
   globals: {
     DEV_MODE: true,
+    GET_TEST_LINK_URL: true,
+    GET_TESTER_URL: true,
+    SAVE_TESTER_URL: true,
     require: true,
     module: true,
     __dirname: true

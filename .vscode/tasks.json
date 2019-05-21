@@ -44,17 +44,7 @@
       "problemMatcher": "$msCompile"
     },
     {
-      "type": "func",
-      "dependsOn": "build",
-      "options": {
-        "cwd": "${workspaceFolder}/src/azure-func-app/bin/Debug/netcoreapp2.1"
-      },
-      "command": "host start",
-      "isBackground": true,
-      "problemMatcher": "$func-watch"
-    },
-    {
-      "label": "func (linux)",
+      "label": "func",
       "command": "func host start",
       "type": "shell",
       "options": {

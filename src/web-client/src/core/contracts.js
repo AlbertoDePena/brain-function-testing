@@ -1,13 +1,8 @@
 /**
- * @typedef {Object} REMOTE_LINK
+ * @typedef {Object} TestLinkResult
  * @property {String} STATUS_CODE 
  * @property {String} MESSAGE
  * @property {String} URL
- */
-
- /**
- * @typedef {Object} TestLinkResult
- * @property {REMOTE_LINK} REMOTE_LINK 
  */
 
 /**
@@ -21,17 +16,12 @@
  * @property {String} dobDay
  * @property {String} dobMonth
  * @property {String} dobYear
- * @property {String} testStatus
- * @property {Date} testScheduleDate
+ * @property {Array} testResults
  */
-
- /**
-  * @typedef {Object} TestOptions
-  * @property {Date} scheduleDate
-  */
 
 /**
  * @typedef {Object} State
  * @property {Tester} tester
- * @property {Boolean} scheduleTest
+ * @property {String} testConfig
+ * @property {Boolean} isCurrentSession
  */

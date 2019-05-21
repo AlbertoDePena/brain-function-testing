@@ -1,52 +1,75 @@
-import { Router } from 'aurelia-router';
+import { Router, activationStrategy } from 'aurelia-router';
 import { inject } from 'aurelia-framework';
 
-import { Api } from '../../core/api';
+import { getDays, getMonths, getYears } from '../../core/common';
+import { getState, setTesterState, setIsCurrentSession } from '../../core/state';
 import { notifyError } from '../../core/notifications';
-import { setTesterState } from '../../core/state';
+import { Api } from '../../core/api';
 
 @inject(Router, Api)
 export class MainViewModel {
- 
+
   constructor(router, api) {
     this.router = router;
     this.api = api;
+
+    this.tester = {};
+    this.days = getDays();
+    this.months = getMonths();
+    this.years = getYears();
   }
 
-  getTester(email) {
-    if (!email) {
+  determineActivationStrategy() {
+    return activationStrategy.replace;
+  }
+
+  activate() {
+   this.tester = getState().tester || {};
+  }
+
+  saveTester() {
+    if (!this.tester.email) {
       notifyError('Email is required');
       return;
     }
-    if (!email.match(/.+@.+/)) {
+    if (!this.tester.email.match(/.+@.+/)) {
       notifyError('Email is invalid');
+      return;
+    }
+    if (!this.tester.firstName) {
+      notifyError('First Name is required');
+      return;
+    }
+    if (!this.tester.lastName) {
+      notifyError('Last Name is required');
+      return;
+    }
+    if (this.tester.dobDay === 'Day') {
+      notifyError('DOB Day is required');
+      return;
+    }
+    if (this.tester.dobMonth === 'Month') {
+      notifyError('DOB Month is required');
+      return;
+    }
+    if (this.tester.dobYear === 'Year') {
+      notifyError('DOB Year is required');
       return;
     }
 
     const that = this;
 
-    function setState(tester) {
-      setTesterState(tester);
-
-      that.router.navigate('test-config');
+    function setState(testerId) {
+      that.tester.id = testerId;
+      setTesterState(that.tester);
+      setIsCurrentSession(true);
+      that.router.navigate('confirmation');
     }
 
     function handleError(error) {
-      if (error.statusCode === 0) {
-        notifyError('Failed to contact Brain Function Testing server. Please contact system administrator.');
-        return;
-      }
-
-      if (error.statusCode !== 404) {
-        notifyError(error.response);
-        return;
-      }
-
-      setTesterState({ email });
-
-      that.router.navigate('test-config');
+      notifyError(error.response);
     }
 
-    this.api.getTester(email).then(setState).catch(handleError);
+    that.api.saveTester(that.tester).then(setState).catch(handleError);
   }
 }

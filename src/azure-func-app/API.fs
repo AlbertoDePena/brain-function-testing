@@ -2,6 +2,7 @@ namespace BFT.AzureFuncApp
 open System.Collections.Generic
 open System.Xml
 open Newtonsoft.Json
+open Newtonsoft.Json.Linq
 
 [<RequireQualifiedAccess>]
 module Validation =
@@ -152,8 +153,9 @@ module Testers =
                 let replace existingTester =
                     let updatedTester = { 
                         existingTester with 
-                            firstName = tester.firstName; lastName = tester.lastName; dob = tester.dob; 
-                            testStatus = tester.testStatus 
+                            firstName = tester.firstName; 
+                            lastName = tester.lastName; 
+                            dob = tester.dob; 
                     }
 
                     let documentId = (DocumentId existingTester.id)
@@ -169,7 +171,7 @@ module Testers =
             } 
 
     let getTestLink : GetTestLink =
-        fun getTester client settings (Email email) ->         
+        fun getTester client settings (Email email) (TestConfig testConfig) ->         
             async {
                 
                 let generateLink tester =
@@ -191,7 +193,7 @@ module Testers =
                                 ("dob_year", year)
                                 ("dob_month", month)
                                 ("dob_day", day)
-                                ("test_config", "9")
+                                ("test_config", testConfig)
                                 ("test_lang", "english_us")
                             |] |> Map.ofArray
 
@@ -209,9 +211,11 @@ module Testers =
 
                         xmlDoc.LoadXml(data)
                         
-                        let link = JsonConvert.SerializeXmlNode(xmlDoc)
+                        let linkResult = xmlDoc |> JsonConvert.SerializeXmlNode |> JsonConvert.DeserializeObject<LinkResult>
 
-                        return TestLink link
+                        if linkResult.REMOTE_LINK.STATUS_CODE <> "0" then sprintf "Failed to generate test link: %s" linkResult.REMOTE_LINK.MESSAGE |> invalidOp 
+
+                        return linkResult.REMOTE_LINK |> JsonConvert.SerializeObject |> TestLinkJson
                     }
 
                 let! testerOption = 
@@ -239,14 +243,14 @@ module TesterAPI =
             }  
 
     let getTestLink =
-        fun settings email ->
+        fun settings email testConfig ->
             async {
                 use! client = Testers.getClient settings 
 
                 return!
                     Testers.getTestLink
                     Testers.getTester
-                    client settings email
+                    client settings email testConfig
             }                      
 
     let saveTestResults =

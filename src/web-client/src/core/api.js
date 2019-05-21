@@ -1,23 +1,29 @@
 import { HttpClient } from 'aurelia-http-client';
 import { inject } from 'aurelia-framework';
+import { EventAggregator } from 'aurelia-event-aggregator';
 
-@inject(HttpClient)
+@inject(HttpClient, EventAggregator)
 export class Api {
-  
-  constructor(httpClient) {
-    this.httpClient = httpClient.configure(opts => {
-      opts.withBaseUrl('http://localhost:7071/api/');
+
+  constructor(httpClient, eventAggregator) {
+    const that = this;
+    that.eventAggregator = eventAggregator;
+    that.httpClient = httpClient.configure(opts => {
       opts.withInterceptor({
         request(message) {
+          that.eventAggregator.publish('loading-event', true);
           return message;
         },
         requestError(error) {
+          that.eventAggregator.publish('loading-event', false);
           throw error;
         },
         response(message) {
+          that.eventAggregator.publish('loading-event', false);
           return message;
         },
         responseError(error) {
+          that.eventAggregator.publish('loading-event', false);
           throw error;
         }
       });
@@ -27,10 +33,11 @@ export class Api {
   /**
     * 
     * @param {String} email
+    * @param {String} testConfig
     * @returns {TestLinkResult} test link result
     */
-  getTestLink(email) {
-    return this.httpClient.get(`get-test-link-http-trigger?email=${email}`)
+  getTestLink(email, testConfig) {
+    return this.httpClient.get(`${GET_TEST_LINK_URL}&email=${email}&config=${testConfig}`)
       .then(result => JSON.parse(result.response));
   }
 
@@ -40,7 +47,7 @@ export class Api {
    * @returns {Tester} tester
    */
   getTester(email) {
-    return this.httpClient.get(`get-tester-http-trigger?email=${email}`)
+    return this.httpClient.get(`${GET_TESTER_URL}&email=${email}`)
       .then(result => JSON.parse(result.response))
       .then(tester => {
         const [dobMonth, dobDay, dobYear] = tester.dob.split('/');
@@ -56,6 +63,7 @@ export class Api {
   saveTester(tester) {
     const { dobMonth, dobDay, dobYear } = tester;
     tester.dob = `${dobMonth}/${dobDay}/${dobYear}`;
-    return this.httpClient.post('save-tester-http-trigger', tester).then(result => result.response);
+    return this.httpClient.post(`${SAVE_TESTER_URL}`, tester)
+      .then(result => result.response);
   }
 }

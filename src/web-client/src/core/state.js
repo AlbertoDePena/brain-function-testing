@@ -10,10 +10,18 @@ export function setTesterState(tester) {
 
 /**
  * 
- * @param {Boolean} scheduleTest 
+ * @param {String} testConfig 
  */
-export function setScheduleTestState(scheduleTest) {
-  state = { ...state, scheduleTest };
+export function setTestConfigState(testConfig) {
+  state = { ...state, testConfig };
+}
+
+/**
+ * 
+ * @param {Boolean} isCurrentSession 
+ */
+export function setIsCurrentSession(isCurrentSession) {
+  state = { ...state, isCurrentSession };
 }
 
 /**

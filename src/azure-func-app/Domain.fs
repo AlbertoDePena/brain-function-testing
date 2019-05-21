@@ -14,6 +14,18 @@ module Models =
     open Microsoft.Azure.Documents.Client
 
     [<CLIMutable>]
+    type RemoteLink = {
+        STATUS_CODE : string
+        MESSAGE : string
+        URL : string
+    }
+
+    [<CLIMutable>]
+    type LinkResult = {
+        REMOTE_LINK : RemoteLink
+    }
+
+    [<CLIMutable>]
     type TestResults = {
         cnsvsId : string
         subjectId : string
@@ -38,8 +50,6 @@ module Models =
         lastName : string
         email : string
         dob: string
-        testStatus : string
-        scheduleDate: string
         testResults : TestResults list
     }
 
@@ -53,7 +63,9 @@ module Models =
         BftEndpointUrl : string
     }
 
-    type TestLink = TestLink of string
+    type TestLinkJson = TestLinkJson of string
+
+    type TestConfig = TestConfig of string
 
     type Email = Email of string
 
@@ -78,4 +90,4 @@ module Models =
         CreateDocument -> ReplaceDocument -> GetTester -> IDocumentClient -> Tester -> Async<DocumentId>
 
     type GetTestLink =
-        GetTester -> IDocumentClient -> AppSettings -> Email -> Async<TestLink>        
+        GetTester -> IDocumentClient -> AppSettings -> Email -> TestConfig -> Async<TestLinkJson>        
