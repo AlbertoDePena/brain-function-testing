@@ -12,6 +12,7 @@ export class ConfirmationViewModel {
     this.logger = LogManager.getLogger('ConfirmationViewModel');
     this.instructionsRead = false;
     this.usingComputer = false;
+    this.turnedOffPopupsBlocker = false;
     this.testLaunched = false;
     this.isCurrentSession = false;
     this.tester = {};
@@ -24,7 +25,7 @@ export class ConfirmationViewModel {
   }
 
   launchTest() {
-    if (!(this.instructionsRead && this.usingComputer) || this.testLaunched) return;
+    if (!(this.instructionsRead && this.usingComputer && this.turnedOffPopupsBlocker) || this.testLaunched) return;
 
     const that = this;
 
