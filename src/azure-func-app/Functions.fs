@@ -2,7 +2,6 @@
 
 open System
 open Microsoft.Azure.WebJobs
-open System.Net.Http
 open Microsoft.Extensions.Logging
 open Microsoft.Azure.WebJobs.Extensions.Http
 open Models
@@ -32,29 +31,33 @@ module Functions =
 
   [<FunctionName("save-test-results-http-trigger")>]
   let SaveTestResultsHttpTriger 
-    ([<HttpTrigger(AuthorizationLevel.Function, "post")>] req: HttpRequestMessage, log: ILogger) =
+    ([<HttpTrigger(AuthorizationLevel.Function, "post")>] req: HttpRequest, log: ILogger) =
     async {
       log.LogInformation("Posting test results...")
 
-      let! formData = req.Content.ReadAsFormDataAsync() |> Async.AwaitTask
+      let! formData = req.ReadFormAsync() |> Async.AwaitTask
 
-      if isNull formData then invalidOp "test result payload is required (Content-Type = application/x-www-form-urlencoded)"
-
+      let getValue key =
+          let hasValue, value = formData.TryGetValue(key)
+          if hasValue then
+            value.ToString()
+          else String.Empty
+      
       let testResults = {
-          cnsvsId = formData.["cnsvs_id"]
-          accountId = formData.["account_id"]
-          testDate = formData.["test_date"]
-          testTime = formData.["test_time"]
-          timezone = formData.["timezone"]
-          gmtTestDate = formData.["gmt_test_date"]
-          gmtTestTime = formData.["gmt_test_time"]
-          subjectId = formData.["subject_id"]
-          birthDate = formData.["birth_date"]
-          gender = formData.["gender"]
-          duration = formData.["duration"]
-          language = formData.["language"]
-          domainData = formData.["domain_data"]
-          reportData = formData.["report_data"]
+          cnsvsId = getValue "cnsvs_id"
+          accountId = getValue "account_id"
+          testDate = getValue "test_date"
+          testTime = getValue "test_time"
+          timezone = getValue "timezone"
+          gmtTestDate = getValue "gmt_test_date"
+          gmtTestTime = getValue "gmt_test_time"
+          subjectId = getValue "subject_id"
+          birthDate = getValue "birth_date"
+          gender = getValue "gender"
+          duration = getValue "duration"
+          language = getValue "language"
+          domainData = getValue "domain_data"
+          reportData = getValue "report_data"
         }
 
       if String.IsNullOrWhiteSpace(testResults.subjectId) then invalidOp "Test results must have a subject ID"
